@@ -339,9 +339,9 @@ public class MeepMeepTesting {
 //        meepMeep.setBackground(MeepMeep.Background.FIELD_POWERPLAY_OFFICIAL)
         meepMeep.setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
-//                .addEntity(BTC)
-//                .addEntity(BTL)
-//                .addEntity(BTR)
+                .addEntity(BTC)
+                .addEntity(BTL)
+                .addEntity(BTR)
 //                .addEntity(BBC2)
 //                .addEntity(BBL)
 //                .addEntity(BBL2)
@@ -351,10 +351,10 @@ public class MeepMeepTesting {
 //                .addEntity(RTL)
 //                .addEntity(RTR)
 //                .addEntity(RBC)
-                .addEntity(RBC2)
-                .addEntity(RBR2)
+//                .addEntity(RBC2)
+//                .addEntity(RBR2)
 //                .addEntity(RBR)
-                .addEntity(RBL2)
+//                .addEntity(RBL2)
                 .start();
     }
 }

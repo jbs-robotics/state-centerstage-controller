@@ -116,8 +116,9 @@ public class BlueBottom extends LinearOpMode {
                 //place pixel on canvas
                 placeOnCanvas();
                 // Move to Corner
-                drive.followTrajectory(drive.trajectoryBuilder(toBackdropLeft.end())
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropLeft.end())
                         .strafeLeft(40)
+                        .back(10)
                         .build());
                 break;
             case 'c': //center
@@ -136,7 +137,7 @@ public class BlueBottom extends LinearOpMode {
                         .forward(28)
                         .splineToLinearHeading(new Pose2d(-6, -30, Math.toRadians(-90)), Math.toRadians(90))
                         .back(20)
-                        .splineToConstantHeading(new Vector2d(-35, 38), Math.toRadians(-180))
+                        .splineToConstantHeading(new Vector2d(-37, 38), Math.toRadians(-180))
 //                        .back(15)
                         .build();
                 drive.followTrajectorySequence(toBackdropCenter);
@@ -144,8 +145,9 @@ public class BlueBottom extends LinearOpMode {
                 //place pixel on canvas
                 placeOnCanvas();
                 // Move to Corner
-                drive.followTrajectory(drive.trajectoryBuilder(toBackdropCenter.end())
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropCenter.end())
                         .strafeLeft(30)
+                        .back(10)
                         .build());
                 break;
             case 'r': //right
@@ -165,9 +167,11 @@ public class BlueBottom extends LinearOpMode {
                 drive.followTrajectorySequence(toBackdropRight);
                 //place pixel on canvas
                 placeOnCanvas();
+
                 // Move to Corner
-                drive.followTrajectory(drive.trajectoryBuilder(toBackdropRight.end())
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropRight.end())
                         .strafeLeft(20)
+                        .back(10)
                         .build());
                 break;
             default:
@@ -191,7 +195,7 @@ public class BlueBottom extends LinearOpMode {
         sleep(2200);
         angleServo.setPower(0);
         claw.setPosition(clawUp);
-        sleep(1000);
+        sleep(500);
     }
     private void placeOnSpike(){
         fingerer.setPosition(0);

@@ -123,8 +123,9 @@ public class RedBottom extends LinearOpMode {
                 //place pixel on canvas
                 placeOnCanvas();
                 // Move to Center
-                drive.followTrajectory(drive.trajectoryBuilder(toBackdropLeft.end())
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropLeft.end())
                         .strafeRight(20)
+                        .back(10)
                         .build());
                 break;
             case 'c': //center
@@ -147,12 +148,13 @@ public class RedBottom extends LinearOpMode {
 //                        .back(17)
                         .build();
                 drive.followTrajectorySequence(toBackdropCenter);
-                // Move to Corner
-                drive.followTrajectory(drive.trajectoryBuilder(toBackdropCenter.end())
-                        .strafeRight(30)
-                        .build());
                 //place pixel on canvas
                 placeOnCanvas();
+                // Move to Corner
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropCenter.end())
+                        .strafeRight(30)
+                        .back(10)
+                        .build());
                 break;
             case 'r': //right
                 TrajectorySequence toSpikeRight = drive.trajectorySequenceBuilder(new Pose2d(60, -33, Math.toRadians(180)))
@@ -173,8 +175,9 @@ public class RedBottom extends LinearOpMode {
                 //place pixel on canvas
                 placeOnCanvas();
                 // Move to corner
-                drive.followTrajectory(drive.trajectoryBuilder(toBackdropRight.end())
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropRight.end())
                         .strafeRight(40)
+                        .back(10)
                         .build());
                 break;
             default:

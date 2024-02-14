@@ -6,14 +6,22 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
+import org.opencv.core.Point;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.List;
 
@@ -21,13 +29,15 @@ import java.util.List;
 /*
  * This is an example of a more complex path to really test the tuning.
  */
-@Autonomous(group = "drive", name="Temporary Bottom(USE THIS ONE FOR NOW)")
+@Autonomous(group = "drive", name="Drive Base auto(RT)")
 public class EmergencyBottom extends LinearOpMode {
-    private DcMotor lift = null;
-    private Servo intake, lock = null;
+    private DcMotor leftFront, leftBack, rightFront, rightBack, lift;
+    private DistanceSensor distanceSensor = null;
+
     private int liftDelay = 1000;
     private double intakeUp = 0.75;
-
+    private OpenCvCamera webcam = null;
+    private ColorDetectorPipeline pipeline = null;
     boolean USE_WEBCAM = true;
 
     TfodProcessor tfod;
@@ -35,123 +45,111 @@ public class EmergencyBottom extends LinearOpMode {
 //    private Servo intakeServo = null;
     @Override
     public void runOpMode() throws InterruptedException {
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-        intake = hardwareMap.get(Servo.class, "lock");
-//        lock = hardwareMap.get(Servo.class, "intake");
-//        lock.setDirection(Servo.Direction.FORWARD);
-        intake.setDirection(Servo.Direction.FORWARD);
-//        initTfod();
-        lift = hardwareMap.get(DcMotor.class, "lift");
-        lift.setDirection(DcMotor.Direction.REVERSE);
-        intake.setPosition(intakeUp);
-        waitForStart();
-//        telemetryTfod();
-//        telemetry.update();
-//        List<Recognition> currentRecognitions = tfod.getRecognitions();
-//        String TFODPrediction = currentRecognitions.get(0).getLabel();
-        String TFODPrediction = "c";
-        if (isStopRequested()) return;
-        drive.setPoseEstimate(new Pose2d(new Vector2d(60, 10), Math.toRadians(180)));
+        distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
+        // Movement Motors
+        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
+        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
+        leftBack = hardwareMap.get(DcMotor.class, "leftBack");
+        rightBack = hardwareMap.get(DcMotor.class, "rightBack");
 
+        // Set Motor Direction
+        leftFront.setDirection(DcMotor.Direction.REVERSE);
+        rightFront.setDirection(DcMotor.Direction.FORWARD);
+        leftBack.setDirection(DcMotor.Direction.REVERSE);
+        rightBack.setDirection(DcMotor.Direction.FORWARD);
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+
+
+        int cameraMonitorViewId = hardwareMap.appContext.getResources()
+                .getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        webcam = OpenCvCameraFactory.getInstance()
+                .createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        pipeline = new ColorDetectorPipeline(telemetry, hardwareMap, 0);
+        webcam.setPipeline(pipeline);
+        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        {
+            @Override
+            public void onOpened()
+            {
+                webcam.startStreaming(320,240, OpenCvCameraRotation.UPRIGHT);
+            }
+            @Override
+            public void onError(int errorCode) { telemetry.addData("Error", errorCode); }
+        });
+        webcam.resumeViewport();
+        pipeline.setRegionPoints(new Point(10, 140), new Point(50, 180), pipeline.getRegion2_pointA(), pipeline.getRegion2_pointB());
+
+        char TFODPrediction = pipeline.getAnalysis();
+        waitForStart();
+        if (isStopRequested()) return;
+        TFODPrediction = pipeline.getAnalysis();
+        drive.setPoseEstimate(new Pose2d(new Vector2d(60, 10), Math.toRadians(180)));
         switch(TFODPrediction) {
-            case "l": //left
-                Trajectory left1 = drive.trajectoryBuilder(new Pose2d(60, 10, Math.toRadians(180)))
-                        .lineToLinearHeading(new Pose2d(new Vector2d(25, 5), Math.toRadians(-80)))
+            case 'l': //left
+                TrajectorySequence toSpikeLeft = drive.trajectorySequenceBuilder(new Pose2d(60, 10, Math.toRadians(180)))
+                        .strafeRight(5)
+                        .lineToLinearHeading(new Pose2d(new Vector2d(30, 7), Math.toRadians(-90)))
                         .build();
-                drive.followTrajectory(left1);
-                Trajectory forwardOffset = drive.trajectoryBuilder(left1.end())
-                        .forward(5)
-                        .build();
-                drive.followTrajectory(forwardOffset);
+                drive.followTrajectorySequence(toSpikeLeft);
                 //place prop on spike mark
                 placeOnSpike();
-//                lift.setPower(1);
-//                sleep(liftDelay/5);
-//                lift.setPower(0);
-                Trajectory left2 = drive.trajectoryBuilder(forwardOffset.end())
-                        .lineToLinearHeading(new Pose2d(new Vector2d(18, 50), Math.toRadians(100.5)))
+                TrajectorySequence toBackdropLeft = drive.trajectorySequenceBuilder(toSpikeLeft.end())
+                        .back(5)
+                        .lineToSplineHeading(new Pose2d(22, 45, Math.toRadians(-90)),
+                                SampleMecanumDrive.getVelocityConstraint(3, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                         .build();
-                drive.followTrajectory(left2);
-                Trajectory Loffset2 = drive.trajectoryBuilder(left2.end())
-                        .forward(10)
-                        .build();
-                drive.turn(Math.toRadians(-30));
-                drive.followTrajectory(Loffset2);
+                drive.followTrajectorySequence(toBackdropLeft);
                 //place pixel on canvas
-//                lift.setPower(-1);
-//                sleep(liftDelay/5);
-//                lift.setPower(0);
                 placeOnCanvas();
-                lift.setPower(1);
-                sleep(liftDelay);
-                lift.setPower(0);
+                // Move to Corner
+                drive.followTrajectory(drive.trajectoryBuilder(toBackdropLeft.end())
+                        .strafeLeft(40)
+                        .build());
                 break;
-            case "c": //center
-                Trajectory center1 = drive.trajectoryBuilder(new Pose2d(60, 10, Math.toRadians(180)))
-                        .forward(24)
-                        .build();
-                drive.followTrajectory(center1);
-                Trajectory Coffset = drive.trajectoryBuilder(center1.end())
+            case 'c': //center
+                TrajectorySequence toSpikeCenter = drive.trajectorySequenceBuilder(new Pose2d(60, 10, Math.toRadians(180)))
+                        .forward(29)
                         .strafeLeft(3)
                         .build();
-                drive.followTrajectory(Coffset);
+                drive.followTrajectorySequence(toSpikeCenter);
                 //place prop on spike mark
                 placeOnSpike();
-//                Trajectory center2 = drive.trajectoryBuilder(Coffset.end())
-//                        .lineToLinearHeading(new Pose2d(35.5, 50, Math.toRadians(90)))
-//                        .build();
-//                drive.followTrajectory(center2);
-//                drive.turn(Math.toRadians(-25));
-//                Trajectory center3 = drive.trajectoryBuilder(center2.end()).forward(4).build();
-//                drive.followTrajectory(center3);
-//                Trajectory center4 = drive.trajectoryBuilder(center3.end())
-//                        .strafeRight(20)
-//                        .build();
-//                drive.followTrajectory(center4);
-//                Trajectory center5 = drive.trajectoryBuilder(center4.end()).forward(5).build();
-//                drive.followTrajectory(center5);
-                //place pixel on canvas
-//                placeOnCanvas();
-//                lift.setPower(1);
-//                sleep(liftDelay);
-//                lift.setPower(0);
-                break;
-            case "r": //right
-//                lift.setPower(1);
-//                sleep(liftDelay/4);
-//                lift.setPower(0.01);
-                Trajectory right1 = drive.trajectoryBuilder(new Pose2d(60, 10, Math.toRadians(180)))
-                        .strafeRight(27)
+                TrajectorySequence toBackdropCenter = drive.trajectorySequenceBuilder(toSpikeCenter.end())
+                        .back(5)
+                        .lineToSplineHeading(new Pose2d(31, 45, Math.toRadians(-90)),
+                                SampleMecanumDrive.getVelocityConstraint(3, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                         .build();
-                Trajectory right2 = drive.trajectoryBuilder(right1.end())
-                        .lineToSplineHeading(new Pose2d(30, 32, Math.toRadians(-70)))
-                        .build();
-                Trajectory right4 = drive.trajectoryBuilder(right2.end())
-                        .forward(5)
-                        .build();
-                Trajectory right5 = drive.trajectoryBuilder(right4.end())
-                        .strafeRight(10)
-                        .build();
-                drive.followTrajectory(right1);
-                drive.followTrajectory(right2);
-                drive.followTrajectory(right4);
-                drive.followTrajectory(right5);
-//                drive.turn(Math.toRadians(20));
-//                drive.followTrajectory(Roffset1);
-                //place prop on spike mark
-                placeOnSpike();
-                Trajectory right3 = drive.trajectoryBuilder(right5.end())
-                        .lineToSplineHeading(new Pose2d(42, 50, Math.toRadians(115)))
-                        .build();
-                drive.followTrajectory(right3);
-                drive.turn(Math.toRadians(-40));
-                Trajectory Roffset2 = drive.trajectoryBuilder(right3.end())
-                        .forward(10)
-                        .build();
-                drive.followTrajectory(Roffset2);
+                drive.followTrajectorySequence(toBackdropCenter);
                 //place pixel on canvas
                 placeOnCanvas();
-
+                // Move to Corner
+                drive.followTrajectory(drive.trajectoryBuilder(toBackdropCenter.end())
+                        .strafeLeft(30)
+                        .build());
+                break;
+            case 'r': //right
+             TrajectorySequence toSpikeRight = drive.trajectorySequenceBuilder(new Pose2d(60, 10, Math.toRadians(180)))
+                        .strafeRight(25)
+                        .lineToSplineHeading(new Pose2d(30, 32, Math.toRadians(-90)))
+                        .build();
+                drive.followTrajectorySequence(toSpikeRight);
+                //place prop on spike mark
+                placeOnSpike();
+                TrajectorySequence toBackdropRight = drive.trajectorySequenceBuilder(toSpikeRight.end())
+                        .back(5)
+                        .lineToSplineHeading(new Pose2d(41, 45, Math.toRadians(-90)),
+                                SampleMecanumDrive.getVelocityConstraint(3, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                        .build();
+                drive.followTrajectorySequence(toBackdropRight);
+                //place pixel on canvas
+                placeOnCanvas();
+                // Move to Corner
+                drive.followTrajectory(drive.trajectoryBuilder(toBackdropRight.end())
+                        .strafeLeft(20)
+                        .build());
                 break;
             default:
                 telemetry.addData("wtf how", "no but actually how");
@@ -159,62 +157,25 @@ public class EmergencyBottom extends LinearOpMode {
         }
     }
     private void placeOnSpike(){
-        lift.setPower(1);
-        sleep(liftDelay/8);
-        lift.setPower(.25);
-        intake.setPosition(0);
-        sleep(4000);
-        intake.setPosition(intakeUp);
+//        fingerer.setPosition(0);
+        sleep(2000);
     }
     private void placeOnCanvas(){
-        lift.setPower(1);
-        sleep(liftDelay/4);
-        lift.setPower(0);
-//        lock.setPosition(1);
-        intake.setPosition(0);
-
-    }
-    private void initTfod() {
-        tfod = tfod.easyCreateWithDefaults();
-
-        if (USE_WEBCAM){
-            visionPortal = VisionPortal.easyCreateWithDefaults(
-                    hardwareMap.get(WebcamName.class, "Webcam 1"), tfod);
-        } else {
-            visionPortal = VisionPortal.easyCreateWithDefaults(
-                    BuiltinCameraDirection.BACK, tfod);
+        while(distanceSensor.getDistance(DistanceUnit.INCH) > 1){
+            leftFront.setPower(-.1);
+            rightFront.setPower(-.1);
+            leftBack.setPower(-.1);
+            rightBack.setPower(-.1);
         }
-    }
-    private void telemetryTfod() {
+        leftFront.setPower(0);
+        rightFront.setPower(0);
+        leftBack.setPower(0);
+        rightBack.setPower(0);
 
-        List<Recognition> currentRecognitions = tfod.getRecognitions();
-        telemetry.addData("# Objects Detected", currentRecognitions.size());
-
-        // Step through the list of recognitions and display info for each one.
-        for (Recognition recognition : currentRecognitions) {
-            double x = (recognition.getLeft() + recognition.getRight()) / 2 ;
-            double y = (recognition.getTop()  + recognition.getBottom()) / 2 ;
-
-            telemetry.addData(""," ");
-            telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
-            telemetry.addData("- Position", "%.0f / %.0f", x, y);
-            telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
-        }   // end for() loop
-
+//        angleServo.setPower(-.2);
+        sleep(2200);
+//        angleServo.setPower(0);
+//        claw.setPosition(clawUp);
+        sleep(1000);
     }
 }
-/* non-default options for tfod
-        * TfodProcessor.Builder myTfodProcessorBuilder;
-          TfodProcessor myTfodProcessor;
-          // Create a new TFOD Processor Builder object.
-          myTfodProcessorBuilder = new TfodProcessor.Builder();
-
-          // Optional: set other custom features of the TFOD Processor (4 are shown here).
-          myTfodProcessorBuilder.setMaxNumRecognitions(1);  // Max. number of recognitions the network will return
-          myTfodProcessorBuilder.setUseObjectTracker(true);  // Whether to use the object tracker
-          myTfodProcessorBuilder.setTrackerMaxOverlap((float) 0.2);  // Max. % of box overlapped by another box at recognition time
-          myTfodProcessorBuilder.setTrackerMinSize(16);  // Min. size of object that the object tracker will track
-
-          // Create a TFOD Processor by calling build()
-          myTfodProcessor = myTfodProcessorBuilder.build();
-        * */
