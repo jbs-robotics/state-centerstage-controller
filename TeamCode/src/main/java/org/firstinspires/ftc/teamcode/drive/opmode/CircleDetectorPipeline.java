@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
-public class ColorDetectorPipeline extends OpenCvPipeline {
+public class CircleDetectorPipeline extends OpenCvPipeline {
     Telemetry telemetry;
     static HardwareMap hardwareMap;
     Mat mat = new Mat();
@@ -42,12 +42,12 @@ public class ColorDetectorPipeline extends OpenCvPipeline {
     }
 
     private int width = 40, height = 40;
-    public ColorDetectorPipeline(Telemetry telemetry, HardwareMap hardwareMap, int rgbI) {
+    public void ColorDetectorPipeline(Telemetry telemetry, HardwareMap hardwareMap, int rgbI) {
         this.telemetry = telemetry;
         this.hardwareMap = hardwareMap;
         this.rgbIndex = rgbI;
     }
-    public ColorDetectorPipeline(Telemetry telemetry, HardwareMap hardwareMap, int rgbI, int w, int h) {
+    public void ColorDetectorPipeline(Telemetry telemetry, HardwareMap hardwareMap, int rgbI, int w, int h) {
         this.telemetry = telemetry;
         this.hardwareMap = hardwareMap;
         this.rgbIndex = rgbI;
