@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -37,6 +38,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 
 /**
@@ -126,7 +129,8 @@ public class DriveBaseOpMode extends LinearOpMode {
             double rbPower = Range.clip(drive - turn + strafe, -driveSensitivity, driveSensitivity) ;
 
             //gamepad 2(lift control)
-            double intakePower = Range.clip(gamepad2.right_trigger, 0, sensitivity);
+            double bootWheelForward = Range.clip(gamepad2.right_trigger, 0, sensitivity);
+            double bootWheelReverse = Range.clip(gamepad2.left_trigger, 0, sensitivity);
             double liftPower = Range.clip(liftControl, -sensitivity, sensitivity);
 
             // Send calculated power to wheels
@@ -140,12 +144,12 @@ public class DriveBaseOpMode extends LinearOpMode {
             leftLift.setPower(liftPower);
             rightLift.setPower(liftPower);
 
-            intake.setPower(intakePower);
+            intake.setPower(bootWheelForward - bootWheelReverse);
 
             telemetry.addData("Current Intake Servo Pos: ", currentServoPos);
             telemetry.addData("Sensitivity: ", sensitivity);
             telemetry.addData("Drive Sensitivity: ", driveSensitivity);
-            telemetry.addData("Intake Power", intakePower);
+            telemetry.addData("Intake Power", bootWheelForward);
             telemetry.update();
         }
     }

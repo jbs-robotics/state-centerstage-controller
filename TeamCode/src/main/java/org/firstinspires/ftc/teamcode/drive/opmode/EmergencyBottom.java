@@ -32,7 +32,7 @@ import java.util.List;
 @Autonomous(group = "drive", name="Drive Base auto(RT)")
 public class EmergencyBottom extends LinearOpMode {
     private DcMotor leftFront, leftBack, rightFront, rightBack, lift;
-    private DistanceSensor distanceSensor = null;
+//    private DistanceSensor distanceSensor = null;
 
     private int liftDelay = 1000;
     private double intakeUp = 0.75;
@@ -45,7 +45,7 @@ public class EmergencyBottom extends LinearOpMode {
 //    private Servo intakeServo = null;
     @Override
     public void runOpMode() throws InterruptedException {
-        distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
+//        distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
         // Movement Motors
         leftFront = hardwareMap.get(DcMotor.class, "leftFront");
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
@@ -161,16 +161,16 @@ public class EmergencyBottom extends LinearOpMode {
         sleep(2000);
     }
     private void placeOnCanvas(){
-        while(distanceSensor.getDistance(DistanceUnit.INCH) > 1){
-            leftFront.setPower(-.1);
-            rightFront.setPower(-.1);
-            leftBack.setPower(-.1);
-            rightBack.setPower(-.1);
-        }
-        leftFront.setPower(0);
-        rightFront.setPower(0);
-        leftBack.setPower(0);
-        rightBack.setPower(0);
+//        while(distanceSensor.getDistance(DistanceUnit.INCH) > 1){
+//            leftFront.setPower(-.1);
+//            rightFront.setPower(-.1);
+//            leftBack.setPower(-.1);
+//            rightBack.setPower(-.1);
+//        }
+//        leftFront.setPower(0);
+//        rightFront.setPower(0);
+//        leftBack.setPower(0);
+//        rightBack.setPower(0);
 
 //        angleServo.setPower(-.2);
         sleep(2200);

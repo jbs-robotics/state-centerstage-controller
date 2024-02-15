@@ -32,10 +32,8 @@ package org.firstinspires.ftc.teamcode.drive.opmode;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -55,18 +53,24 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Drive-base testing Sonic II", group="Linear Opmode")
+@TeleOp(name="PLayer Oriented Drive TeleOp", group="Linear Opmode")
 //@Disabled
-public class DriveBaseOpMode extends LinearOpMode {
+public class PlayerOrientedDrive extends LinearOpMode {
 
-    // Declare OpMode members
+    // Declare OpMode members.
+    ;
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor leftFront, leftBack, rightFront, rightBack, leftLift, rightLift, intake = null;
+    private DcMotor leftFront, leftBack, rightFront, rightBack;
 
-    private double currentServoPos = 0.75, sensitivity = 0.87, driveSensitivity = 1, brakingOffset = -0.0;
+
+    private double currentServoPos = 0.75, sensitivity = 1, driveSensitivity = 1, brakingOffset = -0.1, angleServoPos = 0.45, clawPos = 0.43;
+    private double driveControl, turn, strafe;
 
     @Override
     public void runOpMode() {
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
@@ -80,12 +84,8 @@ public class DriveBaseOpMode extends LinearOpMode {
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
 
-        // Lift Motors
-        leftLift = hardwareMap.get(DcMotor.class, "leftLift");
-        rightLift = hardwareMap.get(DcMotor.class, "rightLift");
 
-        // Intake beater bar
-        intake = hardwareMap.get(DcMotor.class, "intake");
+
 
         // To drive forward, most robots need the motor on on e side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
@@ -96,59 +96,60 @@ public class DriveBaseOpMode extends LinearOpMode {
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
 
-        leftLift.setDirection(DcMotor.Direction.REVERSE);
-        rightLift.setDirection(DcMotor.Direction.FORWARD);
-        leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        intake.setDirection(DcMotorSimple.Direction.REVERSE);
-
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+//            double rcw = gamepad1.right_stick_x;
             // POV Mode uses left stick to go forward, and right stick to turn.
             // - This uses basic math to combine motions and is easier to drive straight.
-            double drive = -gamepad1.left_stick_y;
-            double turn  =  gamepad1.right_stick_x;
-            double strafe = gamepad1.left_stick_x;
-            boolean driveSnipeOn = gamepad1.left_bumper;
-            boolean driveSnipeOff = gamepad1.right_bumper;
+            Pose2d poseEstimate = drive.getPoseEstimate();
+            Double heading = poseEstimate.getHeading();
+//            double headingRadians = Math.toRadians(heading);
 
+            driveControl = gamepad1.left_stick_y * -1;
+            turn  =  -gamepad1.right_stick_x;
+            strafe = -gamepad1.left_stick_x;
+            double tmp = driveControl * Math.cos(heading) + strafe * Math.sin(heading);
+            telemetry.addData("heading", poseEstimate.getHeading());
+            strafe = -driveControl * Math.sin(heading) + strafe * Math.cos(heading);
+            driveControl = tmp;
 
             boolean sniperModeOn = gamepad2.left_bumper;
             boolean sniperModeOff = gamepad2.right_bumper;
-            double liftControl = gamepad2.left_stick_y;
-
+            boolean driveSnipeOn = gamepad1.left_bumper;
+            boolean driveSnipeOff = gamepad1.right_bumper;
             //gamepad 1(drivebase control)
-            double lfPower = Range.clip(drive + turn + strafe, -driveSensitivity, driveSensitivity) ;
-            double rfPower = Range.clip(drive - turn - strafe, -driveSensitivity, driveSensitivity) ;
-            double lbPower = Range.clip(drive + turn - strafe, -driveSensitivity, driveSensitivity);
-            double rbPower = Range.clip(drive - turn + strafe, -driveSensitivity, driveSensitivity) ;
+//            double lfPower = Range.clip(driveControl + turn + strafe, -driveSensitivity, driveSensitivity) ;
+//            double rfPower = Range.clip(driveControl - turn - strafe, -driveSensitivity, driveSensitivity) ;
+//            double lbPower = Range.clip(driveControl + turn - strafe, -driveSensitivity, driveSensitivity);
+//            double rbPower = Range.clip(driveControl - turn + strafe, -driveSensitivity, driveSensitivity) ;
+            driveControl = Range.clip(driveControl, -driveSensitivity, driveSensitivity);
+            turn = Range.clip(turn, -driveSensitivity, driveSensitivity);
+            strafe = Range.clip(strafe, -driveSensitivity, driveSensitivity);
+            drive.setWeightedDrivePower(
+                    new Pose2d(
+                            driveControl,
+                            strafe,
+                            turn
+                    )
+            );
 
-            //gamepad 2(lift control)
-            double intakePower = Range.clip(gamepad2.right_trigger, 0, sensitivity);
-            double liftPower = Range.clip(liftControl, -sensitivity, sensitivity);
+//            // Send calculated power to wheels
+//            leftFront.setPower(lfPower);
+//            leftBack.setPower(lbPower);
+//            rightFront.setPower(rfPower);
+//            rightBack.setPower(rbPower);
+            drive.update();
+            if (sniperModeOff) sensitivity = 1;
+            if (sniperModeOn) sensitivity = 0.5;
+            if (driveSnipeOn) driveSensitivity = 0.25;
+            if (driveSnipeOff) driveSensitivity = 1;
 
-            // Send calculated power to wheels
-            leftFront.setPower(lfPower);
-            leftBack.setPower(lbPower);
-            rightFront.setPower(rfPower);
-            rightBack.setPower(rbPower);
-
-            //send power to lift
-            if(liftPower == 0) liftPower = brakingOffset;
-            leftLift.setPower(liftPower);
-            rightLift.setPower(liftPower);
-
-            intake.setPower(intakePower);
-
-            telemetry.addData("Current Intake Servo Pos: ", currentServoPos);
             telemetry.addData("Sensitivity: ", sensitivity);
             telemetry.addData("Drive Sensitivity: ", driveSensitivity);
-            telemetry.addData("Intake Power", intakePower);
             telemetry.update();
         }
     }
