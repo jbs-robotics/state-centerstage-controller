@@ -60,11 +60,12 @@ public class PlayerOrientedDrive extends LinearOpMode {
     // Declare OpMode members.
     ;
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor leftFront, leftBack, rightFront, rightBack;
+    private DcMotor leftFront, leftBack, rightFront, rightBack, leftLift, rightLift, intake;
 
 
     private double currentServoPos = 0.75, sensitivity = 1, driveSensitivity = 1, brakingOffset = -0.1, angleServoPos = 0.45, clawPos = 0.43;
     private double driveControl, turn, strafe;
+    private double liftPower;
 
     @Override
     public void runOpMode() {
@@ -84,7 +85,11 @@ public class PlayerOrientedDrive extends LinearOpMode {
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
 
-
+        // Lift Motors
+        leftLift = hardwareMap.get(DcMotor.class, "leftLift");
+        rightLift = hardwareMap.get(DcMotor.class, "rightLift");
+        // Intake Beater Bar
+        intake = hardwareMap.get(DcMotor.class, "intake");
 
 
         // To drive forward, most robots need the motor on on e side to be reversed, because the axles point in opposite directions.
@@ -96,6 +101,11 @@ public class PlayerOrientedDrive extends LinearOpMode {
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
 
+
+        leftLift.setDirection(DcMotor.Direction.REVERSE);
+        rightLift.setDirection(DcMotor.Direction.FORWARD);
+        intake.setDirection(DcMotorSimple.Direction.REVERSE);
+
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
@@ -106,7 +116,7 @@ public class PlayerOrientedDrive extends LinearOpMode {
             // POV Mode uses left stick to go forward, and right stick to turn.
             // - This uses basic math to combine motions and is easier to drive straight.
             Pose2d poseEstimate = drive.getPoseEstimate();
-            Double heading = poseEstimate.getHeading();
+            Double heading = poseEstimate.getHeading() ;
 //            double headingRadians = Math.toRadians(heading);
 
             driveControl = gamepad1.left_stick_y * -1;
@@ -121,14 +131,18 @@ public class PlayerOrientedDrive extends LinearOpMode {
             boolean sniperModeOff = gamepad2.right_bumper;
             boolean driveSnipeOn = gamepad1.left_bumper;
             boolean driveSnipeOff = gamepad1.right_bumper;
+            double liftControl = gamepad2.left_stick_y;
+
+
             //gamepad 1(drivebase control)
-//            double lfPower = Range.clip(driveControl + turn + strafe, -driveSensitivity, driveSensitivity) ;
-//            double rfPower = Range.clip(driveControl - turn - strafe, -driveSensitivity, driveSensitivity) ;
-//            double lbPower = Range.clip(driveControl + turn - strafe, -driveSensitivity, driveSensitivity);
-//            double rbPower = Range.clip(driveControl - turn + strafe, -driveSensitivity, driveSensitivity) ;
             driveControl = Range.clip(driveControl, -driveSensitivity, driveSensitivity);
             turn = Range.clip(turn, -driveSensitivity, driveSensitivity);
             strafe = Range.clip(strafe, -driveSensitivity, driveSensitivity);
+
+            //Gamepad 2(mechanisms control)
+            double liftPower = Range.clip(liftControl, -sensitivity, sensitivity);
+            double bootWheelForward = Range.clip(gamepad2.right_trigger, 0, sensitivity);
+            double bootWheelReverse = Range.clip(gamepad2.left_trigger, 0, sensitivity);
             drive.setWeightedDrivePower(
                     new Pose2d(
                             driveControl,
@@ -137,16 +151,17 @@ public class PlayerOrientedDrive extends LinearOpMode {
                     )
             );
 
-//            // Send calculated power to wheels
-//            leftFront.setPower(lfPower);
-//            leftBack.setPower(lbPower);
-//            rightFront.setPower(rfPower);
-//            rightBack.setPower(rbPower);
             drive.update();
             if (sniperModeOff) sensitivity = 1;
             if (sniperModeOn) sensitivity = 0.5;
             if (driveSnipeOn) driveSensitivity = 0.25;
             if (driveSnipeOff) driveSensitivity = 1;
+            //send power to lift
+            if(liftPower == 0) liftPower = brakingOffset;
+            leftLift.setPower(liftPower);
+            rightLift.setPower(liftPower);
+
+            intake.setPower(bootWheelForward - bootWheelReverse);
 
             telemetry.addData("Sensitivity: ", sensitivity);
             telemetry.addData("Drive Sensitivity: ", driveSensitivity);

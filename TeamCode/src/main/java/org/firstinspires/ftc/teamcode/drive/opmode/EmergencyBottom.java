@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -29,9 +30,9 @@ import java.util.List;
 /*
  * This is an example of a more complex path to really test the tuning.
  */
-@Autonomous(group = "drive", name="Drive Base auto(RT)")
+@Autonomous(group = "drive", name="Drive Base auto(RT)", preselectTeleOp="PLayer Oriented Drive TeleOp")
 public class EmergencyBottom extends LinearOpMode {
-    private DcMotor leftFront, leftBack, rightFront, rightBack, lift;
+    private DcMotor leftFront, leftBack, rightFront, rightBack, l_lift, r_lift, urchin;
 //    private DistanceSensor distanceSensor = null;
 
     private int liftDelay = 1000;
@@ -57,6 +58,15 @@ public class EmergencyBottom extends LinearOpMode {
         rightFront.setDirection(DcMotor.Direction.FORWARD);
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
+
+        // Set Mechanics Motors
+        l_lift = hardwareMap.get(DcMotor.class, "leftLift");
+        r_lift = hardwareMap.get(DcMotor.class, "rightLift");
+        urchin = hardwareMap.get(DcMotor.class, "intake");
+
+        l_lift.setDirection(DcMotor.Direction.REVERSE);
+        r_lift.setDirection(DcMotor.Direction.FORWARD);
+
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
 
@@ -95,16 +105,16 @@ public class EmergencyBottom extends LinearOpMode {
                 placeOnSpike();
                 TrajectorySequence toBackdropLeft = drive.trajectorySequenceBuilder(toSpikeLeft.end())
                         .back(5)
-                        .lineToSplineHeading(new Pose2d(22, 45, Math.toRadians(-90)),
-                                SampleMecanumDrive.getVelocityConstraint(3, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        .lineToSplineHeading(new Pose2d(22, 45, Math.toRadians(90)),
+                                SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                                 SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                         .build();
                 drive.followTrajectorySequence(toBackdropLeft);
                 //place pixel on canvas
-                placeOnCanvas();
+                placeOnCanvas(drive);
                 // Move to Corner
                 drive.followTrajectory(drive.trajectoryBuilder(toBackdropLeft.end())
-                        .strafeLeft(40)
+                        .strafeLeft(15)
                         .build());
                 break;
             case 'c': //center
@@ -117,65 +127,64 @@ public class EmergencyBottom extends LinearOpMode {
                 placeOnSpike();
                 TrajectorySequence toBackdropCenter = drive.trajectorySequenceBuilder(toSpikeCenter.end())
                         .back(5)
-                        .lineToSplineHeading(new Pose2d(31, 45, Math.toRadians(-90)),
-                                SampleMecanumDrive.getVelocityConstraint(3, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        .lineToSplineHeading(new Pose2d(31, 47, Math.toRadians(90)),
+                                SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                                 SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                         .build();
                 drive.followTrajectorySequence(toBackdropCenter);
                 //place pixel on canvas
-                placeOnCanvas();
+                placeOnCanvas(drive);
                 // Move to Corner
                 drive.followTrajectory(drive.trajectoryBuilder(toBackdropCenter.end())
-                        .strafeLeft(30)
+                        .strafeLeft(25)
                         .build());
                 break;
             case 'r': //right
              TrajectorySequence toSpikeRight = drive.trajectorySequenceBuilder(new Pose2d(60, 10, Math.toRadians(180)))
                         .strafeRight(25)
-                        .lineToSplineHeading(new Pose2d(30, 32, Math.toRadians(-90)))
+                        .lineToSplineHeading(new Pose2d(30, 28, Math.toRadians(-90)))
                         .build();
                 drive.followTrajectorySequence(toSpikeRight);
                 //place prop on spike mark
                 placeOnSpike();
                 TrajectorySequence toBackdropRight = drive.trajectorySequenceBuilder(toSpikeRight.end())
                         .back(5)
-                        .lineToSplineHeading(new Pose2d(41, 45, Math.toRadians(-90)),
-                                SampleMecanumDrive.getVelocityConstraint(3, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        .lineToSplineHeading(new Pose2d(41, 45, Math.toRadians(90)),
+                                SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                                 SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                         .build();
                 drive.followTrajectorySequence(toBackdropRight);
                 //place pixel on canvas
-                placeOnCanvas();
+                placeOnCanvas(drive);
                 // Move to Corner
                 drive.followTrajectory(drive.trajectoryBuilder(toBackdropRight.end())
-                        .strafeLeft(20)
+                        .strafeLeft(35)
                         .build());
                 break;
             default:
                 telemetry.addData("wtf how", "no but actually how");
                 break;
         }
+        drive.turn(Math.toRadians(93));
     }
     private void placeOnSpike(){
-//        fingerer.setPosition(0);
-        sleep(2000);
+        urchin.setPower(0.1);
+        sleep(500);
+        urchin.setPower(0);
     }
-    private void placeOnCanvas(){
-//        while(distanceSensor.getDistance(DistanceUnit.INCH) > 1){
-//            leftFront.setPower(-.1);
-//            rightFront.setPower(-.1);
-//            leftBack.setPower(-.1);
-//            rightBack.setPower(-.1);
-//        }
-//        leftFront.setPower(0);
-//        rightFront.setPower(0);
-//        leftBack.setPower(0);
-//        rightBack.setPower(0);
-
-//        angleServo.setPower(-.2);
-        sleep(2200);
+    private void placeOnCanvas(SampleMecanumDrive drive){
+        l_lift.setPower(-.5);
+        r_lift.setPower(-.5);
+        sleep(1000);
+        l_lift.setPower(0);
+        r_lift.setPower(0);
 //        angleServo.setPower(0);
 //        claw.setPosition(clawUp);
         sleep(1000);
+        l_lift.setPower(.5);
+        r_lift.setPower(.5);
+        sleep(1000);
+        l_lift.setPower(0);
+        r_lift.setPower(0);
     }
 }
