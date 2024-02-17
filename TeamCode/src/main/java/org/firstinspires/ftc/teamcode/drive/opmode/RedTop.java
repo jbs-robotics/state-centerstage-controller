@@ -26,7 +26,7 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
  */
 @Autonomous(group = "drive", name="Red Top", preselectTeleOp="Basic: Linear OpMode")
 public class RedTop extends LinearOpMode {
-    private DcMotor leftFront, leftBack, rightFront, rightBack, lift;
+    private DcMotor leftFront, leftBack, rightFront, rightBack, l_lift, r_lift, urchin;
     private DistanceSensor distanceSensor = null;
     private OpenCvCamera webcam = null;
     private ColorDetectorPipeline pipeline = null;
@@ -50,8 +50,15 @@ public class RedTop extends LinearOpMode {
         rightFront.setDirection(DcMotor.Direction.FORWARD);
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
+        // Set Mechanics Motors
+        l_lift = hardwareMap.get(DcMotor.class, "leftLift");
+        r_lift = hardwareMap.get(DcMotor.class, "rightLift");
+        urchin = hardwareMap.get(DcMotor.class, "intake");
 
+        l_lift.setDirection(DcMotor.Direction.REVERSE);
+        r_lift.setDirection(DcMotor.Direction.FORWARD);
 
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         int cameraMonitorViewId = hardwareMap.appContext.getResources()
                 .getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance()
@@ -71,20 +78,6 @@ public class RedTop extends LinearOpMode {
         webcam.resumeViewport();
         pipeline.setRegionPoints(new Point(10, 140), new Point(50, 180), pipeline.getRegion2_pointA(), pipeline.getRegion2_pointB());
 
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-        distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
-        intake = hardwareMap.get(Servo.class, "intake");
-        intake.setDirection(Servo.Direction.FORWARD);
-        angleServo = hardwareMap.get(CRServo.class, "angleServo");
-        claw = hardwareMap.get(Servo.class, "claw");
-        lift = hardwareMap.get(DcMotor.class, "lift");
-        fingerer = hardwareMap.get(Servo.class, "fingerer");
-        lift.setDirection(DcMotor.Direction.REVERSE);
-        intake.setPosition(intakeUp);
-        claw.setPosition(clawDown);
-        fingerer.setPosition(.15);
-
-        telemetry.addData("fingerer Pos: ", fingerer.getPosition());
         telemetry.addData(">","Ready to start");
         waitForStart();
         char TFODPrediction = pipeline.getAnalysis();
@@ -158,28 +151,21 @@ public class RedTop extends LinearOpMode {
         }
     }
     private void placeOnSpike(){
-        fingerer.setPosition(0);
-        sleep(2000);
+        urchin.setPower(0.2);
+        sleep(750);
+        urchin.setPower(0);
     }
     private void placeOnCanvas(){
-        while(distanceSensor.getDistance(DistanceUnit.INCH) > 1){
-            leftFront.setPower(-.1);
-            rightFront.setPower(-.1);
-            leftBack.setPower(-.1);
-            rightBack.setPower(-.1);
-        }
-        leftFront.setPower(0);
-        rightFront.setPower(0);
-        leftBack.setPower(0);
-        rightBack.setPower(0);
-
-        angleServo.setPower(-.2);
-        sleep(2200);
-        angleServo.setPower(0);
-        claw.setPosition(clawUp);
+        l_lift.setPower(-.5);
+        r_lift.setPower(-.5);
         sleep(1000);
-    }
-    private void moveBack(){
-
+        l_lift.setPower(0);
+        r_lift.setPower(0);
+        sleep(1000);
+        l_lift.setPower(.5);
+        r_lift.setPower(.5);
+        sleep(1000);
+        l_lift.setPower(0);
+        r_lift.setPower(0);
     }
 }

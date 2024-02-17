@@ -25,7 +25,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
  */
 @Autonomous(group = "drive", name="Red Bottom", preselectTeleOp="Basic: Linear OpMode")
 public class RedBottom extends LinearOpMode {
-    private DcMotor leftFront, leftBack, rightFront, rightBack, lift;
+    private DcMotor leftFront, leftBack, rightFront, rightBack, l_lift, r_lift, urchin;
     private DistanceSensor distanceSensor = null;
 
     private int liftDelay = 1000;
@@ -55,6 +55,13 @@ public class RedBottom extends LinearOpMode {
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
 
+        // Set Mechanics Motors
+        l_lift = hardwareMap.get(DcMotor.class, "leftLift");
+        r_lift = hardwareMap.get(DcMotor.class, "rightLift");
+        urchin = hardwareMap.get(DcMotor.class, "intake");
+
+        l_lift.setDirection(DcMotor.Direction.REVERSE);
+        r_lift.setDirection(DcMotor.Direction.FORWARD);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources()
                 .getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -74,34 +81,13 @@ public class RedBottom extends LinearOpMode {
         });
 
         pipeline.setRegionPoints(new Point(40, 140), new Point(80, 180), pipeline.getRegion2_pointA(), pipeline.getRegion2_pointB());
-        telemetry.addData("region1_pointA: ", pipeline.getRegion1_pointA());
-        telemetry.addData("region1_pointB: ", pipeline.getRegion1_pointB());
-        telemetry.addData("region2_pointA: ", pipeline.getRegion2_pointA());
-        telemetry.addData("region2_pointB: ", pipeline.getRegion2_pointB());
         webcam.resumeViewport();
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-        intake = hardwareMap.get(Servo.class, "intake");
-//        lock = hardwareMap.get(Servo.class, "lock");
-        intake.setDirection(Servo.Direction.FORWARD);
-//        lock.setDirection(Servo.Direction.FORWARD);
-//        initTfod();
-        lift = hardwareMap.get(DcMotor.class, "lift");
-        angleServo = hardwareMap.get(CRServo.class, "angleServo");
-        claw = hardwareMap.get(Servo.class, "claw");
-        fingerer = hardwareMap.get(CRServo.class, "fingerer2");
-        lift.setDirection(DcMotor.Direction.REVERSE);
-        intake.setPosition(intakeUp);
-        claw.setPosition(clawDown);
         telemetry.addData(">", "Press Play to start op mode");
 
         waitForStart();
         char TFODPrediction = pipeline.getAnalysis();
-//        telemetryTfod();
-//        telemetry.update();
-//        List<Recognition> currentRecognitions = tfod.getRecognitions();
-//        String TFODPrediction = currentRecognitions.get(0).getLabel();
-//        String TFODPrediction = "c";
         if (isStopRequested()) return;
         drive.setPoseEstimate(new Pose2d(new Vector2d(60, -37), Math.toRadians(180)));
         switch(TFODPrediction){
@@ -187,29 +173,21 @@ public class RedBottom extends LinearOpMode {
 
     }
     private void placeOnSpike(){
-        fingerer.setPower(-.2);
-        sleep(2000);
-        fingerer.setPower(0);
+        urchin.setPower(0.2);
+        sleep(750);
+        urchin.setPower(0);
     }
     private void placeOnCanvas(){
-        while(distanceSensor.getDistance(DistanceUnit.INCH) > 1){
-            leftFront.setPower(-.1);
-            rightFront.setPower(-.1);
-            leftBack.setPower(-.1);
-            rightBack.setPower(-.1);
-        }
-        leftFront.setPower(0);
-        rightFront.setPower(0);
-        leftBack.setPower(0);
-        rightBack.setPower(0);
-
-        angleServo.setPower(-.2);
-        sleep(2200);
-        angleServo.setPower(0);
-        claw.setPosition(clawUp);
+        l_lift.setPower(-.5);
+        r_lift.setPower(-.5);
         sleep(1000);
-        angleServo.setPower(.2);
-        sleep(2000);
-        angleServo.setPower(0);
+        l_lift.setPower(0);
+        r_lift.setPower(0);
+        sleep(1000);
+        l_lift.setPower(.5);
+        r_lift.setPower(.5);
+        sleep(1000);
+        l_lift.setPower(0);
+        r_lift.setPower(0);
     }
 }

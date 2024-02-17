@@ -39,10 +39,7 @@ public class EmergencyBottom extends LinearOpMode {
     private double intakeUp = 0.75;
     private OpenCvCamera webcam = null;
     private ColorDetectorPipeline pipeline = null;
-    boolean USE_WEBCAM = true;
 
-    TfodProcessor tfod;
-    private VisionPortal visionPortal;
 //    private Servo intakeServo = null;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -69,7 +66,6 @@ public class EmergencyBottom extends LinearOpMode {
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-
         int cameraMonitorViewId = hardwareMap.appContext.getResources()
                 .getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance()
@@ -89,7 +85,7 @@ public class EmergencyBottom extends LinearOpMode {
         webcam.resumeViewport();
         pipeline.setRegionPoints(new Point(10, 140), new Point(50, 180), pipeline.getRegion2_pointA(), pipeline.getRegion2_pointB());
 
-        char TFODPrediction = pipeline.getAnalysis();
+        char TFODPrediction;
         waitForStart();
         if (isStopRequested()) return;
         TFODPrediction = pipeline.getAnalysis();
@@ -105,15 +101,16 @@ public class EmergencyBottom extends LinearOpMode {
                 placeOnSpike();
                 TrajectorySequence toBackdropLeft = drive.trajectorySequenceBuilder(toSpikeLeft.end())
                         .back(5)
-                        .lineToSplineHeading(new Pose2d(22, 45, Math.toRadians(90)),
+                        .lineToSplineHeading(new Pose2d(22, 48, Math.toRadians(90)),
                                 SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                                 SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                         .build();
                 drive.followTrajectorySequence(toBackdropLeft);
                 //place pixel on canvas
-                placeOnCanvas(drive);
+                placeOnCanvas();
                 // Move to Corner
-                drive.followTrajectory(drive.trajectoryBuilder(toBackdropLeft.end())
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropLeft.end())
+                        .back(2)
                         .strafeLeft(15)
                         .build());
                 break;
@@ -127,37 +124,39 @@ public class EmergencyBottom extends LinearOpMode {
                 placeOnSpike();
                 TrajectorySequence toBackdropCenter = drive.trajectorySequenceBuilder(toSpikeCenter.end())
                         .back(5)
-                        .lineToSplineHeading(new Pose2d(31, 47, Math.toRadians(90)),
+                        .lineToSplineHeading(new Pose2d(26, 48, Math.toRadians(90)),
                                 SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                                 SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                         .build();
                 drive.followTrajectorySequence(toBackdropCenter);
                 //place pixel on canvas
-                placeOnCanvas(drive);
+                placeOnCanvas();
                 // Move to Corner
-                drive.followTrajectory(drive.trajectoryBuilder(toBackdropCenter.end())
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropCenter.end())
+                        .back(2)
                         .strafeLeft(25)
                         .build());
                 break;
             case 'r': //right
              TrajectorySequence toSpikeRight = drive.trajectorySequenceBuilder(new Pose2d(60, 10, Math.toRadians(180)))
                         .strafeRight(25)
-                        .lineToSplineHeading(new Pose2d(30, 28, Math.toRadians(-90)))
+                        .lineToSplineHeading(new Pose2d(30, 29, Math.toRadians(-90)))
                         .build();
                 drive.followTrajectorySequence(toSpikeRight);
                 //place prop on spike mark
                 placeOnSpike();
                 TrajectorySequence toBackdropRight = drive.trajectorySequenceBuilder(toSpikeRight.end())
                         .back(5)
-                        .lineToSplineHeading(new Pose2d(41, 45, Math.toRadians(90)),
+                        .lineToSplineHeading(new Pose2d(41, 50, Math.toRadians(90)),
                                 SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                                 SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                         .build();
                 drive.followTrajectorySequence(toBackdropRight);
                 //place pixel on canvas
-                placeOnCanvas(drive);
+                placeOnCanvas();
                 // Move to Corner
-                drive.followTrajectory(drive.trajectoryBuilder(toBackdropRight.end())
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropRight.end())
+                        .back(2)
                         .strafeLeft(35)
                         .build());
                 break;
@@ -168,18 +167,16 @@ public class EmergencyBottom extends LinearOpMode {
         drive.turn(Math.toRadians(93));
     }
     private void placeOnSpike(){
-        urchin.setPower(0.1);
-        sleep(500);
+        urchin.setPower(0.2);
+        sleep(750);
         urchin.setPower(0);
     }
-    private void placeOnCanvas(SampleMecanumDrive drive){
+    private void placeOnCanvas(){
         l_lift.setPower(-.5);
         r_lift.setPower(-.5);
         sleep(1000);
         l_lift.setPower(0);
         r_lift.setPower(0);
-//        angleServo.setPower(0);
-//        claw.setPosition(clawUp);
         sleep(1000);
         l_lift.setPower(.5);
         r_lift.setPower(.5);
