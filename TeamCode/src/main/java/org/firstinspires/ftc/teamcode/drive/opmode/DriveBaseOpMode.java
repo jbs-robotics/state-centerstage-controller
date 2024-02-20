@@ -61,9 +61,13 @@ public class DriveBaseOpMode extends LinearOpMode {
 
     // Declare OpMode members
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor leftFront, leftBack, rightFront, rightBack, leftLift, rightLift, intake = null;
+    private DcMotor leftFront, leftBack, rightFront, rightBack, leftLift, rightLift, intake = null, hang;
+    private Servo leftChute, rightChute, hangServo;
+    private CRServo leftWrist, rightWrist;
+    private boolean leftOpen = false, rightOpen = false;
+    private int pullupUp = 12690, pullupDown = 0;
 
-    private double currentServoPos = 0.75, sensitivity = 0.87, driveSensitivity = 1, brakingOffset = -0.0;
+    private double currentServoPos = 0.75, sensitivity = 0.87, driveSensitivity = 1, brakingOffset = -0.0 , wristSensitivity = .5, wristOffset = 0.2;
 
     @Override
     public void runOpMode() {
@@ -79,13 +83,18 @@ public class DriveBaseOpMode extends LinearOpMode {
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
-
         // Lift Motors
         leftLift = hardwareMap.get(DcMotor.class, "leftLift");
         rightLift = hardwareMap.get(DcMotor.class, "rightLift");
-
-        // Intake beater bar
+//        hang = hardwareMap.get(DcMotor.class, "hang");
+//        hangServo = hardwareMap.get(Servo.class, "hangServo");
+        // Intake
         intake = hardwareMap.get(DcMotor.class, "intake");
+        leftChute = hardwareMap.get(Servo.class, "leftChute");
+        rightChute = hardwareMap.get(Servo.class, "rightChute");
+        leftWrist = hardwareMap.get(CRServo.class, "leftWrist");
+        rightWrist = hardwareMap.get(CRServo.class, "rightWrist");
+
 
         // To drive forward, most robots need the motor on on e side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
@@ -96,12 +105,22 @@ public class DriveBaseOpMode extends LinearOpMode {
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
 
+//        hang.setDirection(DcMotor.Direction.FORWARD);
+
         leftLift.setDirection(DcMotor.Direction.REVERSE);
         rightLift.setDirection(DcMotor.Direction.FORWARD);
         leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftChute.setDirection(Servo.Direction.FORWARD);
+        rightChute.setDirection(Servo.Direction.REVERSE);
+
+//        hang.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        hang.setTargetPosition(0);
+//
+//        hang.setPower(1);
+//        hang.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -117,6 +136,8 @@ public class DriveBaseOpMode extends LinearOpMode {
             boolean driveSnipeOn = gamepad1.left_bumper;
             boolean driveSnipeOff = gamepad1.right_bumper;
 
+            boolean leftChuteOpen = gamepad2.left_bumper;
+            boolean rightChuteOpen = gamepad2.right_bumper;
 
             boolean sniperModeOn = gamepad2.left_bumper;
             boolean sniperModeOff = gamepad2.right_bumper;
@@ -131,7 +152,37 @@ public class DriveBaseOpMode extends LinearOpMode {
             //gamepad 2(lift control)
             double bootWheelForward = Range.clip(gamepad2.right_trigger, 0, sensitivity);
             double bootWheelReverse = Range.clip(gamepad2.left_trigger, 0, sensitivity);
-            double liftPower = Range.clip(liftControl, -sensitivity, sensitivity);
+            double liftPower = Range.clip(liftControl, -.87, .87);
+            double wristPower = Range.clip(gamepad2.right_stick_y, -wristSensitivity, wristSensitivity);
+//            boolean hangBtn = gamepad2.a;
+
+
+            // Chute control
+            if (leftChuteOpen && !leftOpen) {
+                leftChute.setPosition(0);
+                leftOpen = true;
+            } else if (!leftChuteOpen && leftOpen) {
+                leftChute.setPosition(.25);
+                leftOpen = false;
+            }
+            if (rightChuteOpen && !rightOpen) {
+                rightChute.setPosition(0);
+                rightOpen = true;
+            } else if (!rightChuteOpen && rightOpen) {
+                rightChute.setPosition(0.25);
+                rightOpen = false;
+            }
+
+//            if (hangBtn) {
+//                hang.setTargetPosition(pullupUp);
+//                hang.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                hang.setPower(1);
+//            }
+//            if(gamepad2.x){
+//                hang.setTargetPosition(pullupDown);
+//                hang.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                hang.setPower(1);
+//            }
 
             // Send calculated power to wheels
             leftFront.setPower(lfPower);
@@ -144,8 +195,16 @@ public class DriveBaseOpMode extends LinearOpMode {
             leftLift.setPower(liftPower);
             rightLift.setPower(liftPower);
 
-            intake.setPower(bootWheelForward - bootWheelReverse);
+            //send power to wrist
+            if (wristPower == 0) wristPower = wristOffset;
+            leftWrist.setPower(wristPower);
+            rightWrist.setPower(wristPower);
 
+            intake.setPower(bootWheelForward - bootWheelReverse);
+            if (sniperModeOff) sensitivity = 1;
+            if (sniperModeOn) sensitivity = 0.5;
+            if (driveSnipeOn) driveSensitivity = 0.25;
+            if (driveSnipeOff) driveSensitivity = 1;
             telemetry.addData("Current Intake Servo Pos: ", currentServoPos);
             telemetry.addData("Sensitivity: ", sensitivity);
             telemetry.addData("Drive Sensitivity: ", driveSensitivity);

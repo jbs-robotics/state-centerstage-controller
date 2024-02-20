@@ -5,6 +5,7 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.path.QuinticSpline;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
+import com.noahbres.meepmeep.roadrunner.SampleMecanumDrive;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
 import java.awt.Image;
@@ -17,6 +18,12 @@ import javax.imageio.ImageIO;
 import jdk.internal.vm.vector.VectorSupport;
 
 public class MeepMeepTesting {
+    private static double MAX_ANG_ACCEL = Math.toRadians(322.9144064235337);
+    private static double MAX_ANG_VEL = 2.475;
+    private static double MAX_VEL = 30;
+    private static double MAX_ACCEL = 90;
+    public static double TRACK_WIDTH = 15.47; // in
+
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(800);
         //Red Top
@@ -27,12 +34,16 @@ public class MeepMeepTesting {
                 //left
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(new Pose2d(60, 10, Math.toRadians(180)))
-                                .lineToSplineHeading(new Pose2d(35, 10, Math.toRadians(-90)))
+                                .strafeRight(5)
+                                .lineToLinearHeading(new Pose2d(new Vector2d(30, 7), Math.toRadians(-90)))
                                 //place pixel
-                                .lineToSplineHeading(new Pose2d(28, 45, Math.toRadians(-90)))
-//                                .turn(Math.toRadians(180))
                                 .back(5)
+                                .lineToSplineHeading(new Pose2d(30, 48, Math.toRadians(90)),
+                                        SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
+                                        SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                                 //place other pixel on backdrop
+                                .back(2)
+                                .strafeLeft(15)
                                 .build()
                 );
         RoadRunnerBotEntity RTC = new DefaultBotBuilder(meepMeep)
@@ -40,13 +51,16 @@ public class MeepMeepTesting {
                 .setDimensions(17.75, 17)
                 //center
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(new Pose2d(60, 10, Math.toRadians(180)))
-                        .forward(27)
+                        .forward(29)
+                        .strafeLeft(3)
                         //place pixel
                         .back(5)
-                        .lineToSplineHeading(new Pose2d(35.5, 45, Math.toRadians(-90)))
-//                        .turn(Math.toRadians(180))
-                        .back(5)
+                        .lineToSplineHeading(new Pose2d(35, 48, Math.toRadians(90)),
+                                SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                         //place pixel on canvas
+                        .back(2)
+                        .strafeLeft(25)
                         .build()
                 );
         RoadRunnerBotEntity RTR = new DefaultBotBuilder(meepMeep)
@@ -55,11 +69,15 @@ public class MeepMeepTesting {
                 //right
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(new Pose2d(60, 10, Math.toRadians(180)))
                         .strafeRight(25)
-                        .lineToSplineHeading(new Pose2d(30, 32, Math.toRadians(-90)))
+                        .lineToSplineHeading(new Pose2d(30, 29, Math.toRadians(-90)))
                         //place pixel
-                        .lineToSplineHeading(new Pose2d(42, 45, Math.toRadians(-90)))
-//                        .turn(Math.toRadians(180))
                         .back(5)
+                        .lineToSplineHeading(new Pose2d(41, 50, Math.toRadians(90)),
+                                SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
+                        //place second pixel on canvas
+                        .back(2)
+                        .strafeLeft(35)
                         .build()
                 );
 
@@ -339,17 +357,17 @@ public class MeepMeepTesting {
 //        meepMeep.setBackground(MeepMeep.Background.FIELD_POWERPLAY_OFFICIAL)
         meepMeep.setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
-                .addEntity(BTC)
-                .addEntity(BTL)
-                .addEntity(BTR)
+//                .addEntity(BTC)
+//                .addEntity(BTL)
+//                .addEntity(BTR)
 //                .addEntity(BBC2)
 //                .addEntity(BBL)
 //                .addEntity(BBL2)
 //                .addEntity(BBR)
 //                .addEntity(BBR2)
-//                .addEntity(RTC)
-//                .addEntity(RTL)
-//                .addEntity(RTR)
+                .addEntity(RTC)
+                .addEntity(RTL)
+                .addEntity(RTR)
 //                .addEntity(RBC)
 //                .addEntity(RBC2)
 //                .addEntity(RBR2)

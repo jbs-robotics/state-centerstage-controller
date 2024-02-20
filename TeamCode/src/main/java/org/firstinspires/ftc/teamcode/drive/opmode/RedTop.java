@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ACCEL;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ANG_VEL;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.TRACK_WIDTH;
+
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
@@ -12,6 +16,7 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.vision.VisionPortal;
@@ -95,14 +100,17 @@ public class RedTop extends LinearOpMode {
                 placeOnSpike();
                 TrajectorySequence toBackdropLeft = drive.trajectorySequenceBuilder(toSpikeLeft.end())
                         .back(5)
-                        .lineToSplineHeading(new Pose2d(22, 45, Math.toRadians(-90)))
+                        .lineToSplineHeading(new Pose2d(30, 48, Math.toRadians(90)),
+                                SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                         .build();
                 drive.followTrajectorySequence(toBackdropLeft);
                 //place pixel on canvas
                 placeOnCanvas();
                 // Move to Corner
-                drive.followTrajectory(drive.trajectoryBuilder(toBackdropLeft.end())
-                        .strafeLeft(40)
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropLeft.end())
+                        .back(2)
+                        .strafeLeft(15)
                         .build());
                 break;
             case 'c': //center
@@ -115,40 +123,48 @@ public class RedTop extends LinearOpMode {
                 placeOnSpike();
                 TrajectorySequence toBackdropCenter = drive.trajectorySequenceBuilder(toSpikeCenter.end())
                         .back(5)
-                        .lineToSplineHeading(new Pose2d(31, 45, Math.toRadians(-90)))
+                        .lineToSplineHeading(new Pose2d(35, 48, Math.toRadians(90)),
+                                SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                         .build();
                 drive.followTrajectorySequence(toBackdropCenter);
                 //place pixel on canvas
                 placeOnCanvas();
                 // Move to Corner
-                drive.followTrajectory(drive.trajectoryBuilder(toBackdropCenter.end())
-                        .strafeLeft(30)
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropCenter.end())
+                        .back(2)
+                        .strafeLeft(25)
                         .build());
                 break;
             case 'r': //right
                 TrajectorySequence toSpikeRight = drive.trajectorySequenceBuilder(new Pose2d(60, 10, Math.toRadians(180)))
                         .strafeRight(25)
-                        .lineToSplineHeading(new Pose2d(30, 32, Math.toRadians(-90)))
+                        .lineToSplineHeading(new Pose2d(30, 29, Math.toRadians(-90)))
                         .build();
                 drive.followTrajectorySequence(toSpikeRight);
                 //place prop on spike mark
                 placeOnSpike();
                 TrajectorySequence toBackdropRight = drive.trajectorySequenceBuilder(toSpikeRight.end())
                         .back(5)
-                        .lineToSplineHeading(new Pose2d(41, 45, Math.toRadians(-90)))
+                        .lineToSplineHeading(new Pose2d(41, 50, Math.toRadians(90)),
+                                SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                         .build();
                 drive.followTrajectorySequence(toBackdropRight);
                 //place pixel on canvas
                 placeOnCanvas();
                 // Move to Corner
-                drive.followTrajectory(drive.trajectoryBuilder(toBackdropRight.end())
-                        .strafeLeft(20)
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropRight.end())
+                        .back(2)
+                        .strafeLeft(35)
                         .build());
                 break;
             default:
                 telemetry.addData("wtf how", "no but actually how");
                 break;
         }
+        drive.turn(Math.toRadians(93));
+
     }
     private void placeOnSpike(){
         urchin.setPower(0.2);
