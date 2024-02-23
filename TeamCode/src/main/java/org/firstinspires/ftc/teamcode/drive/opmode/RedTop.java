@@ -29,16 +29,14 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 /*
  * This is an example of a more complex path to really test the tuning.
  */
-@Autonomous(group = "drive", name="Red Top", preselectTeleOp="Basic: Linear OpMode")
+@Autonomous(group = "drive", name="Red Top", preselectTeleOp="Robot-Oriented Drive")
 public class RedTop extends LinearOpMode {
     private DcMotor leftFront, leftBack, rightFront, rightBack, l_lift, r_lift, urchin;
     private DistanceSensor distanceSensor = null;
     private OpenCvCamera webcam = null;
     private ColorDetectorPipeline pipeline = null;
-    private Servo intake = null,  claw = null, fingerer = null;
-    private CRServo angleServo = null;
-    private int liftDelay = 1000;
-    private double intakeUp = 0.7, intakeDown = 0, clawUp = 0.5, clawDown = 0.4, angleServoUp = .48, angleServoDown = 0.43;
+    private Servo leftWrist, rightWrist, leftChute, rightChute;
+    private double intakeUp = 0.7, intakeDown = 0, clawUp = 0.5, clawDown = 0.4, angleServoUp = .48, angleServoDown = 0.43,  brakingOffset = -0.1;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -55,10 +53,23 @@ public class RedTop extends LinearOpMode {
         rightFront.setDirection(DcMotor.Direction.FORWARD);
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
+
         // Set Mechanics Motors
         l_lift = hardwareMap.get(DcMotor.class, "leftLift");
         r_lift = hardwareMap.get(DcMotor.class, "rightLift");
         urchin = hardwareMap.get(DcMotor.class, "intake");
+
+        // Wrist and Outtake
+        leftChute = hardwareMap.get(Servo.class, "leftChute");
+        rightChute = hardwareMap.get(Servo.class, "rightChute");
+        leftWrist = hardwareMap.get(Servo.class, "leftWrist");
+        rightWrist = hardwareMap.get(Servo.class, "rightWrist");
+
+        leftChute.setDirection(Servo.Direction.FORWARD);
+        rightChute.setDirection(Servo.Direction.REVERSE);
+
+        leftWrist.setDirection(Servo.Direction.FORWARD);
+        rightWrist.setDirection(Servo.Direction.REVERSE);
 
         l_lift.setDirection(DcMotor.Direction.REVERSE);
         r_lift.setDirection(DcMotor.Direction.FORWARD);
@@ -100,17 +111,25 @@ public class RedTop extends LinearOpMode {
                 placeOnSpike();
                 TrajectorySequence toBackdropLeft = drive.trajectorySequenceBuilder(toSpikeLeft.end())
                         .back(5)
-                        .lineToSplineHeading(new Pose2d(30, 48, Math.toRadians(90)),
+                        .lineToSplineHeading(new Pose2d(25, 48, Math.toRadians(90)),
                                 SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
                                 SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                         .build();
+                TrajectorySequence toBackdropLeft2 = drive.trajectorySequenceBuilder(toBackdropLeft.end())
+                        .lineToSplineHeading(new Pose2d(25, 50, Math.toRadians(90)),
+                                SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
+                        .build();
+
                 drive.followTrajectorySequence(toBackdropLeft);
+                setOnCanvas();
+                drive.followTrajectorySequence(toBackdropLeft2);
                 //place pixel on canvas
                 placeOnCanvas();
                 // Move to Corner
-                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropLeft.end())
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropLeft2.end())
                         .back(2)
-                        .strafeLeft(15)
+                        .strafeRight(35)
                         .build());
                 break;
             case 'c': //center
@@ -127,13 +146,21 @@ public class RedTop extends LinearOpMode {
                                 SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
                                 SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                         .build();
+                TrajectorySequence toBackdropCenter2 = drive.trajectorySequenceBuilder(toBackdropCenter.end())
+                        .lineToSplineHeading(new Pose2d(35, 50, Math.toRadians(90)),
+                                SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
+                        .build();
+
                 drive.followTrajectorySequence(toBackdropCenter);
+                setOnCanvas();
+                drive.followTrajectorySequence(toBackdropCenter2);
                 //place pixel on canvas
                 placeOnCanvas();
                 // Move to Corner
-                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropCenter.end())
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropCenter2.end())
                         .back(2)
-                        .strafeLeft(25)
+                        .strafeRight(25)
                         .build());
                 break;
             case 'r': //right
@@ -144,19 +171,28 @@ public class RedTop extends LinearOpMode {
                 drive.followTrajectorySequence(toSpikeRight);
                 //place prop on spike mark
                 placeOnSpike();
+
                 TrajectorySequence toBackdropRight = drive.trajectorySequenceBuilder(toSpikeRight.end())
                         .back(5)
-                        .lineToSplineHeading(new Pose2d(41, 50, Math.toRadians(90)),
+                        .lineToSplineHeading(new Pose2d(39, 48, Math.toRadians(90)),
                                 SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
                                 SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                         .build();
+                TrajectorySequence toBackdropRight2 = drive.trajectorySequenceBuilder(toBackdropRight.end())
+                        .lineToSplineHeading(new Pose2d(39, 50, Math.toRadians(90)),
+                                SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
+                        .build();
+
                 drive.followTrajectorySequence(toBackdropRight);
+                setOnCanvas();
+                drive.followTrajectorySequence(toBackdropRight2);
                 //place pixel on canvas
                 placeOnCanvas();
                 // Move to Corner
-                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropRight.end())
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropRight2.end())
                         .back(2)
-                        .strafeLeft(35)
+                        .strafeRight(15)
                         .build());
                 break;
             default:
@@ -167,21 +203,22 @@ public class RedTop extends LinearOpMode {
 
     }
     private void placeOnSpike(){
-        urchin.setPower(0.2);
+        urchin.setPower(0.25);
         sleep(750);
         urchin.setPower(0);
     }
-    private void placeOnCanvas(){
+    private void setOnCanvas(){
         l_lift.setPower(-.5);
         r_lift.setPower(-.5);
-        sleep(1000);
-        l_lift.setPower(0);
-        r_lift.setPower(0);
-        sleep(1000);
-        l_lift.setPower(.5);
-        r_lift.setPower(.5);
-        sleep(1000);
-        l_lift.setPower(0);
-        r_lift.setPower(0);
+        leftWrist.setPosition(0.2);
+        rightWrist.setPosition(0.2);
+        sleep(700);
+        l_lift.setPower(brakingOffset);
+        r_lift.setPower(brakingOffset);
+    }
+    private void placeOnCanvas(){
+        leftChute.setPosition(0.25);
+        rightChute.setPosition(0.25);
+        sleep(2000);
     }
 }

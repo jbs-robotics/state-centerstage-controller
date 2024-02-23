@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ACCEL;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ANG_VEL;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.TRACK_WIDTH;
+
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -23,22 +27,16 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 /*
  * This is an example of a more complex path to really test the tuning.
  */
-@Autonomous(group = "drive", name="Red Bottom", preselectTeleOp="Basic: Linear OpMode")
+@Autonomous(group = "drive", name="Red Bottom", preselectTeleOp="Robot-Oriented Drive")
 public class RedBottom extends LinearOpMode {
     private DcMotor leftFront, leftBack, rightFront, rightBack, l_lift, r_lift, urchin;
     private DistanceSensor distanceSensor = null;
 
-    private int liftDelay = 1000;
-    private double intakeUp = 0.75, intakeDown = 0, clawUp = 0.5, clawDown = 0.4;
+    private double brakingOffset = -0.1;
 
     private OpenCvCamera webcam = null;
     private ColorDetectorPipeline pipeline = null;
-    private Servo intake, claw = null;
-    private CRServo angleServo = null, fingerer;
-
-    TfodProcessor tfod;
-    private VisionPortal visionPortal;
-//    private Servo intakeServo = null;
+    private Servo leftWrist, rightWrist, leftChute, rightChute;
     @Override
     public void runOpMode() throws InterruptedException {
         distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
@@ -62,6 +60,18 @@ public class RedBottom extends LinearOpMode {
 
         l_lift.setDirection(DcMotor.Direction.REVERSE);
         r_lift.setDirection(DcMotor.Direction.FORWARD);
+
+        // Wrist and Outtake
+        leftChute = hardwareMap.get(Servo.class, "leftChute");
+        rightChute = hardwareMap.get(Servo.class, "rightChute");
+        leftWrist = hardwareMap.get(Servo.class, "leftWrist");
+        rightWrist = hardwareMap.get(Servo.class, "rightWrist");
+
+        leftChute.setDirection(Servo.Direction.FORWARD);
+        rightChute.setDirection(Servo.Direction.REVERSE);
+
+        leftWrist.setDirection(Servo.Direction.FORWARD);
+        rightWrist.setDirection(Servo.Direction.REVERSE);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources()
                 .getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -99,19 +109,28 @@ public class RedBottom extends LinearOpMode {
                 //place pixel on spike mark
                 placeOnSpike();
                 TrajectorySequence toBackdropLeft = drive.trajectorySequenceBuilder(toSpikeLeft.end())
-                        .back(3)
-                        .strafeRight(20)
-                        .back(20)
-                        .splineToConstantHeading(new Vector2d(26, 38), Math.toRadians(0))
-//                        .back(14)
+                        .back(5)
+                        .lineToSplineHeading(new Pose2d(58, -38, Math.toRadians(90)))
+                        .forward(51)
+                        .splineToSplineHeading(new Pose2d(25, 48, Math.toRadians(90)), Math.toRadians(180),
+                                SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                         .build();
+                TrajectorySequence toBackdropLeft2 = drive.trajectorySequenceBuilder(toBackdropLeft.end())
+                        .lineToSplineHeading(new Pose2d(25, 50, Math.toRadians(90)),
+                                SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
+                        .build();
+
                 drive.followTrajectorySequence(toBackdropLeft);
+                setOnCanvas();
+                drive.followTrajectorySequence(toBackdropLeft2);
                 //place pixel on canvas
                 placeOnCanvas();
                 // Move to Center
-                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropLeft.end())
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropLeft2.end())
+                        .back(5)
                         .strafeRight(20)
-                        .back(10)
                         .build());
                 break;
             case 'c': //center
@@ -125,21 +144,29 @@ public class RedBottom extends LinearOpMode {
                 placeOnSpike();
 
                 TrajectorySequence toBackdropCenter = drive.trajectorySequenceBuilder(toSpikeCenter.end())
-                        .back(10)
-                        .strafeLeft(22)
-                        .forward(30)
-                        .splineToLinearHeading(new Pose2d(8, -30, Math.toRadians(-90)), Math.toRadians(90))
-                        .back(45)
-                        .splineToConstantHeading(new Vector2d(38, 38), Math.toRadians(0))
-//                        .back(17)
+                        .back(4)
+                        .strafeLeft(5)
+                        .lineToSplineHeading(new Pose2d(58, -37, Math.toRadians(90)))
+                        .forward(50)
+                        .splineToSplineHeading(new Pose2d(35, 48, Math.toRadians(90)), Math.toRadians(180),
+                                SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                         .build();
+                TrajectorySequence toBackdropCenter2 = drive.trajectorySequenceBuilder(toBackdropCenter.end())
+                        .lineToSplineHeading(new Pose2d(35, 52, Math.toRadians(90)),
+                                SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
+                        .build();
+
                 drive.followTrajectorySequence(toBackdropCenter);
+                setOnCanvas();
+                drive.followTrajectorySequence(toBackdropCenter2);
                 //place pixel on canvas
                 placeOnCanvas();
                 // Move to Corner
-                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropCenter.end())
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropCenter2.end())
                         .strafeRight(30)
-                        .back(10)
+//                        .back(10)
                         .build());
                 break;
             case 'r': //right
@@ -151,19 +178,28 @@ public class RedBottom extends LinearOpMode {
                 //place pixel on spike mark
                 placeOnSpike();
                 TrajectorySequence toBackdropRight = drive.trajectorySequenceBuilder(toSpikeRight.end())
-                        .back(8)
-                        .lineToSplineHeading(new Pose2d(5, -38, Math.toRadians(-90)))
-                        .back(60)
-                        .splineToConstantHeading(new Vector2d(42, 46), Math.toRadians(0))
-//                        .back(6)
+                        .back(5)
+                        .lineToSplineHeading(new Pose2d(58, -37, Math.toRadians(90)))
+                        .forward(50)
+                        .splineToSplineHeading(new Pose2d(39, 48, Math.toRadians(90)), Math.toRadians(180),
+                                SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                         .build();
+                TrajectorySequence toBackdropRight2 = drive.trajectorySequenceBuilder(toBackdropRight.end())
+                        .lineToSplineHeading(new Pose2d(39, 50, Math.toRadians(90)),
+                                SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
+                        .build();
+
                 drive.followTrajectorySequence(toBackdropRight);
+                setOnCanvas();
+                drive.followTrajectorySequence(toBackdropRight2);
                 //place pixel on canvas
                 placeOnCanvas();
                 // Move to corner
-                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropRight.end())
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropRight2.end())
                         .strafeRight(40)
-                        .back(10)
+//                        .back(10)
                         .build());
                 break;
             default:
@@ -173,21 +209,23 @@ public class RedBottom extends LinearOpMode {
 
     }
     private void placeOnSpike(){
-        urchin.setPower(0.2);
+        urchin.setPower(0.25);
         sleep(750);
         urchin.setPower(0);
     }
-    private void placeOnCanvas(){
+    private void setOnCanvas(){
         l_lift.setPower(-.5);
         r_lift.setPower(-.5);
-        sleep(1000);
-        l_lift.setPower(0);
-        r_lift.setPower(0);
-        sleep(1000);
-        l_lift.setPower(.5);
-        r_lift.setPower(.5);
-        sleep(1000);
-        l_lift.setPower(0);
-        r_lift.setPower(0);
+        sleep(200);
+        leftWrist.setPosition(0.2);
+        rightWrist.setPosition(0.2);
+        sleep(500);
+        l_lift.setPower(brakingOffset);
+        r_lift.setPower(brakingOffset);
+    }
+    private void placeOnCanvas(){
+        leftChute.setPosition(0.25);
+        rightChute.setPosition(0.25);
+        sleep(2000);
     }
 }
