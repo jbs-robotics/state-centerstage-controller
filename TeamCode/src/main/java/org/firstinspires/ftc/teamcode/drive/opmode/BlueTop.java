@@ -32,12 +32,10 @@ public class BlueTop extends LinearOpMode {
 
     private OpenCvCamera webcam = null;
     private ColorDetectorPipeline pipeline = null;
-    private Servo leftWrist, rightWrist, leftChute, rightChute;
-    private double brakingOffset = -0.1;
+    private Servo rightWrist, leftChute, rightChute;
+    private double brakingOffset = -0.1, wristUp = 0.2655, wristDown = 0.4345;
     @Override
     public void runOpMode() throws InterruptedException {
-        distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
-
         // Movement Motors
         leftFront = hardwareMap.get(DcMotor.class, "leftFront");
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
@@ -57,14 +55,12 @@ public class BlueTop extends LinearOpMode {
         // Wrist and Outtake
         leftChute = hardwareMap.get(Servo.class, "leftChute");
         rightChute = hardwareMap.get(Servo.class, "rightChute");
-        leftWrist = hardwareMap.get(Servo.class, "leftWrist");
         rightWrist = hardwareMap.get(Servo.class, "rightWrist");
 
         leftChute.setDirection(Servo.Direction.FORWARD);
         rightChute.setDirection(Servo.Direction.REVERSE);
 
-        leftWrist.setDirection(Servo.Direction.FORWARD);
-        rightWrist.setDirection(Servo.Direction.REVERSE);
+        rightWrist.setDirection(Servo.Direction.FORWARD);
 
         l_lift.setDirection(DcMotor.Direction.REVERSE);
         r_lift.setDirection(DcMotor.Direction.FORWARD);
@@ -203,23 +199,24 @@ public class BlueTop extends LinearOpMode {
         }
     }
     private void placeOnSpike(){
-        urchin.setPower(0.25);
+        urchin.setPower(0.3);
         sleep(500);
         urchin.setPower(0);
     }
     private void setOnCanvas(){
         l_lift.setPower(-.5);
         r_lift.setPower(-.5);
-        leftWrist.setPosition(0.2);
-        rightWrist.setPosition(0.2);
-        sleep(700);
+        sleep(600);
+//        sleep(200);
         l_lift.setPower(brakingOffset);
         r_lift.setPower(brakingOffset);
+        rightWrist.setPosition(wristUp);
+        sleep(1000);
     }
     private void placeOnCanvas(){
         leftChute.setPosition(0.25);
         rightChute.setPosition(0.25);
         sleep(2000);
-
+        rightWrist.setPosition(wristDown);
     }
 }

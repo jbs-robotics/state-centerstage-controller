@@ -53,7 +53,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="PLayer Oriented Drive TeleOp", group="Linear Opmode")
+@TeleOp(name="Player Oriented Drive TeleOp", group="Linear Opmode")
 //@Disabled
 public class PlayerOrientedDrive extends LinearOpMode {
 

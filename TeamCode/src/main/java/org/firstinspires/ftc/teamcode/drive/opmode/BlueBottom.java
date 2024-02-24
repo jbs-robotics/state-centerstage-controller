@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.opencv.core.Point;
@@ -21,22 +22,18 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 /*
  * This is an example of a more complex path to really test the tuning.
  */
-@Autonomous(group = "drive", name="Blue Bottom", preselectTeleOp="Basic: Linear OpMode")
+@Autonomous(group = "drive", name="Blue Bottom", preselectTeleOp="Robot-Oriented Drive")
 public class BlueBottom extends LinearOpMode {
     private DcMotor leftFront, leftBack, rightFront, rightBack, l_lift, r_lift, urchin;
     private DistanceSensor distanceSensor = null;
 
-    private int liftDelay = 1000;
-    private double intakeUp = 0.7, intakeDown = 0, clawUp = 0.5, clawDown = 0.4, angleServoUp = .1, angleServoDown = 0.43;
+    private double wristUp = 0.25, wristDown = 0.4345, brakingOffset = -0.1;
 
     private OpenCvCamera webcam = null;
     private ColorDetectorPipeline pipeline = null;
-    private Servo intake = null, claw = null, fingerer;
-    private CRServo angleServo = null;
+    private Servo rightWrist, leftChute, rightChute;
     @Override
     public void runOpMode() throws InterruptedException {
-        distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
-
         // Movement Motors
         leftFront = hardwareMap.get(DcMotor.class, "leftFront");
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
@@ -53,6 +50,15 @@ public class BlueBottom extends LinearOpMode {
         l_lift = hardwareMap.get(DcMotor.class, "leftLift");
         r_lift = hardwareMap.get(DcMotor.class, "rightLift");
         urchin = hardwareMap.get(DcMotor.class, "intake");
+        // Wrist and Outtake
+        leftChute = hardwareMap.get(Servo.class, "leftChute");
+        rightChute = hardwareMap.get(Servo.class, "rightChute");
+        rightWrist = hardwareMap.get(Servo.class, "rightWrist");
+
+        leftChute.setDirection(Servo.Direction.FORWARD);
+        rightChute.setDirection(Servo.Direction.REVERSE);
+
+        rightWrist.setDirection(Servo.Direction.FORWARD);
 
         l_lift.setDirection(DcMotor.Direction.REVERSE);
         r_lift.setDirection(DcMotor.Direction.FORWARD);
@@ -86,9 +92,7 @@ public class BlueBottom extends LinearOpMode {
         switch(TFODPrediction){
             case 'l': //left
                 TrajectorySequence toSpikeLeft = drive.trajectorySequenceBuilder(new Pose2d(-60, -37, Math.toRadians(0)))
-                        .splineToSplineHeading(new Pose2d(-34, -33, Math.toRadians(90)), Math.toRadians(90))
-                        .forward(1)
-//                        .back(12)
+                        .splineToSplineHeading(new Pose2d(-35, -33, Math.toRadians(90)), Math.toRadians(90))
                         .build();
                 drive.followTrajectorySequence(toSpikeLeft);
 
@@ -96,25 +100,32 @@ public class BlueBottom extends LinearOpMode {
                 placeOnSpike();
 
                 TrajectorySequence toBackdropLeft = drive.trajectorySequenceBuilder(toSpikeLeft.end())
-                        .back(6)
-                        .lineToSplineHeading(new Pose2d(-3, -38, Math.toRadians(-90)))
-                        .back(60)
-                        .splineToConstantHeading(new Vector2d(-39, 45), Math.toRadians(180))
-//                        .back(7)
+                        .back(5)
+                        .lineToSplineHeading(new Pose2d(-59, -37, Math.toRadians(90)))
+                        .forward(50)
+                        .splineToSplineHeading(new Pose2d(-41, 48, Math.toRadians(90)),Math.toRadians(0))
                         .build();
+                TrajectorySequence toBackdropLeft2 = drive.trajectorySequenceBuilder(toBackdropLeft.end())
+                        .lineToSplineHeading(new Pose2d(-41, 54, Math.toRadians(90)),
+                                SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                        .build();
+
                 drive.followTrajectorySequence(toBackdropLeft);
+                setOnCanvas();
+                drive.followTrajectorySequence(toBackdropLeft2);
 
                 //place pixel on canvas
                 placeOnCanvas();
                 // Move to Corner
-                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropLeft.end())
-                        .strafeLeft(40)
-                        .back(10)
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropLeft2.end())
+                        .back(3)
+                        .strafeRight(30)
                         .build());
                 break;
             case 'c': //center
                 TrajectorySequence toSpikeCenter = drive.trajectorySequenceBuilder(new Pose2d(-60, -37, Math.toRadians(0)))
-                        .forward(29)
+                        .forward(28)
                         .strafeLeft(3)
                         .build();
                 drive.followTrajectorySequence(toSpikeCenter);
@@ -123,46 +134,56 @@ public class BlueBottom extends LinearOpMode {
                 placeOnSpike();
 
                 TrajectorySequence toBackdropCenter = drive.trajectorySequenceBuilder(toSpikeCenter.end())
-                        .back(10)
-                        .strafeRight(24)
-                        .forward(28)
-                        .splineToLinearHeading(new Pose2d(-6, -30, Math.toRadians(-90)), Math.toRadians(90))
-                        .back(20)
-                        .splineToConstantHeading(new Vector2d(-37, 38), Math.toRadians(-180))
-//                        .back(15)
+                        .back(4)
+                        .strafeRight(3)
+                        .lineToLinearHeading(new Pose2d(-59, -37, Math.toRadians(90)))
+                        .forward(50)
+                        .splineToSplineHeading(new Pose2d(-34, 48.5, Math.toRadians(90)), Math.toRadians(0))
+                        .build();
+                TrajectorySequence toBackdropCenter2 = drive.trajectorySequenceBuilder(toBackdropCenter.end())
+                        .lineToSplineHeading(new Pose2d(-34, 54, Math.toRadians(90)),
+                                SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                         .build();
                 drive.followTrajectorySequence(toBackdropCenter);
-
+                setOnCanvas();
+                drive.followTrajectorySequence(toBackdropCenter2);
                 //place pixel on canvas
                 placeOnCanvas();
                 // Move to Corner
-                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropCenter.end())
-                        .strafeLeft(30)
-                        .back(10)
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropCenter2.end())
+                        .back(3)
+                        .strafeRight(25)
                         .build());
                 break;
             case 'r': //right
                 TrajectorySequence toSpikeRight = drive.trajectorySequenceBuilder(new Pose2d(-60, -37, Math.toRadians(0)))
-                        .lineToSplineHeading(new Pose2d(-20, -35, Math.toRadians(-90)))
+                        .lineToSplineHeading(new Pose2d(-25, -37, Math.toRadians(-90)))
                         .build();
                 drive.followTrajectorySequence(toSpikeRight);
                 //place pixel on spike mark
                 placeOnSpike();
                 TrajectorySequence toBackdropRight = drive.trajectorySequenceBuilder(toSpikeRight.end())
                         .back(3)
-                        .strafeLeft(20)
-                        .back(20)
-                        .splineToConstantHeading(new Vector2d(-26, 38), Math.toRadians(-180))
-//                        .back(14)
+                        .lineToSplineHeading(new Pose2d(-59, -37, Math.toRadians(90)))
+                        .forward(50)
+                        .splineToSplineHeading(new Pose2d(-28, 48.5, Math.toRadians(90)), Math.toRadians(0))
+                        .build();
+                TrajectorySequence toBackdropRight2 = drive.trajectorySequenceBuilder(toBackdropRight.end())
+                        .lineToSplineHeading(new Pose2d(-28, 54, Math.toRadians(90)),
+                                SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+
                         .build();
                 drive.followTrajectorySequence(toBackdropRight);
+                setOnCanvas();
+                drive.followTrajectorySequence(toBackdropRight2);
                 //place pixel on canvas
                 placeOnCanvas();
-
                 // Move to Corner
-                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropRight.end())
-                        .strafeLeft(20)
-                        .back(10)
+                drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropRight2.end())
+                        .back(3)
+                        .strafeRight(15)
                         .build());
                 break;
             default:
@@ -170,22 +191,25 @@ public class BlueBottom extends LinearOpMode {
                 break;
         }
     }
-    private void placeOnCanvas(){
-        urchin.setPower(0.2);
-        sleep(750);
+    private void placeOnSpike(){
+        urchin.setPower(0.3);
+        sleep(500);
         urchin.setPower(0);
     }
-    private void placeOnSpike(){
+    private void setOnCanvas(){
         l_lift.setPower(-.5);
         r_lift.setPower(-.5);
+        sleep(750);
+//        sleep(200);
+        l_lift.setPower(brakingOffset);
+        r_lift.setPower(brakingOffset);
+        rightWrist.setPosition(wristUp);
         sleep(1000);
-        l_lift.setPower(0);
-        r_lift.setPower(0);
-        sleep(1000);
-        l_lift.setPower(.5);
-        r_lift.setPower(.5);
-        sleep(1000);
-        l_lift.setPower(0);
-        r_lift.setPower(0);
+    }
+    private void placeOnCanvas(){
+        leftChute.setPosition(0.25);
+        rightChute.setPosition(0.25);
+        sleep(2000);
+        rightWrist.setPosition(wristDown);
     }
 }

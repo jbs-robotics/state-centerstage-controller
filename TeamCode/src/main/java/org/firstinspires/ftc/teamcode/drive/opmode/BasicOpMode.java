@@ -80,21 +80,6 @@ public class BasicOpMode extends LinearOpMode {
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
 
-        // Lift Motors
-        lift = hardwareMap.get(DcMotor.class, "lift");
-        angleServo = hardwareMap.get(CRServo.class, "angleServo");
-        claw = hardwareMap.get(Servo.class, "claw");
-//        urchin = hardwareMap.get(DcMotor.class, "urchin");
-
-        // Pullup Motors
-        pullupMotor = hardwareMap.get(DcMotor.class, "pullup");
-//        hookServo = hardwareMap.get(CRServo.class, "hookServo");
-        intakeServo = hardwareMap.get(Servo.class, "intake");
-
-        // Launcher Motors
-        droneLauncher = hardwareMap.get(Servo.class, "droneLauncher");
-
-
         // To drive forward, most robots need the motor on on e side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
@@ -103,22 +88,7 @@ public class BasicOpMode extends LinearOpMode {
         rightFront.setDirection(DcMotor.Direction.FORWARD);
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
-        pullupMotor.setDirection(DcMotor.Direction.FORWARD);
-        lift.setDirection(DcMotor.Direction.FORWARD);
 
-        //resets the encoders 0 position
-        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-
-//        pullupMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        pullupMotor.setTargetPosition(0);
-
-        pullupMotor.setPower(1);
-        pullupMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        intakeServo.setPosition(servoUpLimit);
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
@@ -132,84 +102,26 @@ public class BasicOpMode extends LinearOpMode {
             double strafe = gamepad1.left_stick_x;
             boolean sniperModeOn = gamepad2.left_bumper;
             boolean sniperModeOff = gamepad2.right_bumper;
-            double liftControl = gamepad2.left_stick_y;
-            double intake = -gamepad2.right_stick_y;
-            boolean hookBtn = gamepad2.y;
-            //a and b are switched on gamepad
-            boolean lockOn = gamepad2.b;
-            boolean lockOff = gamepad2.a;
-            boolean driveSnipeOn = gamepad1.left_bumper;
-            boolean driveSnipeOff = gamepad1.right_bumper;
-            //gamepad 1(drivebase control)
+
             double lfPower = Range.clip(drive + turn + strafe, -driveSensitivity, driveSensitivity) ;
             double rfPower = Range.clip(drive - turn - strafe, -driveSensitivity, driveSensitivity) ;
             double lbPower = Range.clip(drive + turn - strafe, -driveSensitivity, driveSensitivity);
             double rbPower = Range.clip(drive - turn + strafe, -driveSensitivity, driveSensitivity) ;
 
-            //gamepad 2(lift control)
-            double intakePos = Range.clip(intake, -sensitivity/180, sensitivity/180);
-            double liftPower = Range.clip(liftControl, -sensitivity, sensitivity);
-            boolean launch = gamepad2.dpad_up;
-            boolean unlaunch = gamepad2.dpad_down;
-            boolean angleServoUp = gamepad1.dpad_up, angleServoDown = gamepad1.dpad_down, clawUp = gamepad1.dpad_right, clawDown = gamepad1.dpad_left;
-
+            if(sniperModeOn){
+                driveSensitivity = 0.5;
+            }
+            if(sniperModeOff){
+                driveSensitivity = 0.75;
+            }
 
             // Send calculated power to wheels
             leftFront.setPower(lfPower);
-            leftBack.setPower(lbPower);
             rightFront.setPower(rfPower);
+            leftBack.setPower(lbPower);
             rightBack.setPower(rbPower);
 
-            //send power to lift
-            if(liftPower == 0) liftPower = brakingOffset;
-            lift.setPower(liftPower);
 
-            //check if intake is running
-            currentServoPos += intakePos;
-            currentServoPos = Math.max(0, currentServoPos);
-            currentServoPos = Math.min(.75, currentServoPos);
-            intakeServo.setPosition(currentServoPos);
-            if (sniperModeOff) sensitivity = 1;
-            if (sniperModeOn) sensitivity = 0.5;
-            if (driveSnipeOn) driveSensitivity = 0.25;
-            if (driveSnipeOff) driveSensitivity = .75;
-            if (hookBtn) {
-                pullupMotor.setTargetPosition(pullupUp);
-                pullupMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                pullupMotor.setPower(1);
-            }
-//            angleServo.setPosition(angleServoPos);
-            claw.setPosition(clawPos);
-            if(angleServoUp) {
-                angleServo.setPower(.2);
-            }
-            else if(angleServoDown) {
-                angleServo.setPower(-.2);
-            }
-            else angleServo.setPower(0);
-            if(clawUp && clawPos <= 1) clawPos += 0.001;
-            if(clawDown && clawPos >= 0) clawPos -= 0.001;
-            if(gamepad2.x){
-                pullupMotor.setTargetPosition(pullupDown);
-                pullupMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                pullupMotor.setPower(1);
-            }
-            if (launch){
-                droneLauncher.setPosition(0);
-            }
-            if (unlaunch){
-                droneLauncher.setPosition(0.5);
-            }
-            telemetry.addData("Current Intake Servo Pos: ", currentServoPos);
-            telemetry.addData("Sensitivity: ", sensitivity);
-            telemetry.addData("Drive Sensitivity: ", driveSensitivity);
-            telemetry.addData("pullupMotor Position: ", pullupMotor.getCurrentPosition());
-            telemetry.addData("pullupMotor Target Position: ", pullupMotor.getTargetPosition());
-            telemetry.addData("LiftPower: ", lift.getPower());
-            telemetry.addData("angleServoPos: ", angleServo.getPower());
-            telemetry.addData("clawPos", claw.getPosition());
-            telemetry.addData("counter: ", counter);
-            telemetry.addData("counter2: ", counter2);
             telemetry.update();
         }
     }

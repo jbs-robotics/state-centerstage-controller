@@ -62,13 +62,12 @@ public class DriveBaseOpMode extends LinearOpMode {
     // Declare OpMode members
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor leftFront, leftBack, rightFront, rightBack, leftLift, rightLift, intake = null, hang;
-    private Servo  leftPivot, rightPivot;
-    private Servo leftWrist, rightWrist, leftChute, rightChute, planeLauncher;
+    private Servo rightWrist, leftChute, rightChute, planeLauncher;
     private boolean leftOpen = false, rightOpen = false;
     private int pullupUp = 12500, pullupDown = 0;
 
-    private double currentServoPos = 0.75, sensitivity = 0.87, driveSensitivity = 1, brakingOffset = -0.1 , wristOffset = -0.075, wristPos = .5, pivotPos = 0;
-    private double wristSensitivity = .002;
+    private double currentServoPos = 0.75, sensitivity = 0.87, driveSensitivity = 1, brakingOffset = -0.1 , wristOffset = -0.030, wristPos = .5;
+    private double wristSensitivity = .001;
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
@@ -88,14 +87,11 @@ public class DriveBaseOpMode extends LinearOpMode {
         rightLift = hardwareMap.get(DcMotor.class, "rightLift");
 
         hang = hardwareMap.get(DcMotor.class, "hang");
-        leftPivot = hardwareMap.get(Servo.class, "leftPivot");
-        rightPivot = hardwareMap.get(Servo.class, "rightPivot");
         // Intake
         intake = hardwareMap.get(DcMotor.class, "intake");
 
         leftChute = hardwareMap.get(Servo.class, "leftChute");
         rightChute = hardwareMap.get(Servo.class, "rightChute");
-        leftWrist = hardwareMap.get(Servo.class, "leftWrist");
         rightWrist = hardwareMap.get(Servo.class, "rightWrist");
 
         //Plane Launcher
@@ -122,10 +118,7 @@ public class DriveBaseOpMode extends LinearOpMode {
         leftChute.setDirection(Servo.Direction.FORWARD);
         rightChute.setDirection(Servo.Direction.REVERSE);
 
-        leftWrist.setDirection(Servo.Direction.FORWARD);
-        rightWrist.setDirection(Servo.Direction.REVERSE);
-        leftPivot.setDirection(Servo.Direction.FORWARD);
-        rightPivot.setDirection(Servo.Direction.REVERSE);
+        rightWrist.setDirection(Servo.Direction.FORWARD);
 
 //        hang.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         hang.setTargetPosition(0);
@@ -168,43 +161,35 @@ public class DriveBaseOpMode extends LinearOpMode {
             double bootWheelReverse = Range.clip(gamepad2.left_trigger, 0, sensitivity);
             double liftPower = Range.clip(liftControl, -.87, .87);
             double wristPower = Range.clip(gamepad2.right_stick_y, -wristSensitivity, wristSensitivity);
-//            double pivotPower = Range.clip(gamepad2.right_stick_x, -wristSensitivity, wristSensitivity);
-            boolean hangBtn = gamepad2.a;
 
 
             // Chute control
             if (!leftChuteOpen) {
                 leftChute.setPosition(0);
-            } else if (leftChuteOpen) {
+            }
+            else{
                 leftChute.setPosition(.25);
             }
             if (!rightChuteOpen) {
                 rightChute.setPosition(0);
-            } else if (rightChuteOpen) {
+            } else{
                 rightChute.setPosition(0.25);
             }
 
-            pivotPos += gamepad2.dpad_up?(.005) : gamepad2.dpad_down?(-.005):0;
-            if (pivotPos <= .35){
-                pivotPos = .35;
-            }
-            if(pivotPos >= .65){
-                pivotPos = .65;
-            }
-            leftPivot.setPosition(pivotPos);
-            rightPivot.setPosition(pivotPos);
-            if (hangBtn) {
+            // pullup up
+            if (gamepad2.y) {
                 hang.setTargetPosition(pullupUp);
                 hang.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 hang.setPower(1);
             }
-            if(gamepad2.x){
+            // pullup down
+            if(gamepad2.a){
                 hang.setTargetPosition(pullupDown);
                 hang.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 hang.setPower(1);
             }
 
-            if(planeUp) planeLauncher.setPosition(1);
+            if(planeUp) planeLauncher.setPosition(.25);
             if(planeDown) planeLauncher.setPosition(0);
 
 
@@ -220,19 +205,19 @@ public class DriveBaseOpMode extends LinearOpMode {
             rightLift.setPower(liftPower);
 
             wristPos += wristPower;
-            if(wristPos <= 0.33) wristPos = 0.33; // up
-            if(wristPos >= .62) wristPos = .62; // down
-            leftWrist.setPosition(wristPos);
+            //red cable is left
+            if(wristPos <= 0.2655) wristPos = 0.2655; // up
+            if(wristPos >= 0.42) wristPos = 0.42; // down
             rightWrist.setPosition(wristPos);
 
             if (bootWheelForward == 0 && bootWheelReverse == 0) {
                 intake.setPower(0);
             }
             else if (bootWheelForward == 0) {
-                intake.setPower(-1);
+                intake.setPower(-.75);
             }
             else if (bootWheelReverse == 0) {
-                intake.setPower(1);
+                intake.setPower(.75);
             }
             else
 //            intake.setPower(bootWheelForward - bootWheelReverse);
@@ -242,7 +227,6 @@ public class DriveBaseOpMode extends LinearOpMode {
             if (driveSnipeOff) driveSensitivity = 1;
             telemetry.addData("Current Intake Servo Pos: ", currentServoPos);
             telemetry.addData("Sensitivity: ", sensitivity);
-            telemetry.addData("Current Pivot Pos: ", pivotPos);
             telemetry.addData("Current Wrist Pos: ", wristPos);
             telemetry.addData("Drive Sensitivity: ", driveSensitivity);
             telemetry.addData("Intake Power", bootWheelForward);
