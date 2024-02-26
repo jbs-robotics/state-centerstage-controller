@@ -15,15 +15,13 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.opmode.ColorDetectorPipeline;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.opencv.core.Point;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-/*
- * This is an example of a more complex path to really test the tuning.
- */
 @Autonomous(group = "drive", name="Blue Top", preselectTeleOp="Robot-Oriented Drive")
 public class BlueTop extends LinearOpMode {
     private DcMotor leftFront, leftBack, rightFront, rightBack, l_lift, r_lift, urchin;
@@ -33,7 +31,7 @@ public class BlueTop extends LinearOpMode {
     private OpenCvCamera webcam = null;
     private ColorDetectorPipeline pipeline = null;
     private Servo rightWrist, leftChute, rightChute;
-    private double brakingOffset = -0.1, wristUp = 0.2655, wristDown = 0.4345;
+    private double brakingOffset = -0.1, wristUp = .25, wristDown = .4075;
     @Override
     public void runOpMode() throws InterruptedException {
         // Movement Motors

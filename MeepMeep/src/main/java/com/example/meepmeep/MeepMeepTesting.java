@@ -43,7 +43,7 @@ public class MeepMeepTesting {
                                         SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                                 //place other pixel on backdrop
                                 .back(2)
-                                .strafeLeft(15)
+                                .strafeRight(15)
                                 .build()
                 );
         RoadRunnerBotEntity RTC = new DefaultBotBuilder(meepMeep)
@@ -60,7 +60,7 @@ public class MeepMeepTesting {
                                 SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                         //place pixel on canvas
                         .back(2)
-                        .strafeLeft(25)
+                        .strafeRight(25)
                         .build()
                 );
         RoadRunnerBotEntity RTR = new DefaultBotBuilder(meepMeep)
@@ -77,7 +77,7 @@ public class MeepMeepTesting {
                                 SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                         //place second pixel on canvas
                         .back(2)
-                        .strafeLeft(35)
+                        .strafeRight(15)
                         .build()
                 );
 
@@ -199,7 +199,7 @@ public class MeepMeepTesting {
                 //left
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(new Pose2d(60, -37, Math.toRadians(180)))
-                                .lineToSplineHeading(new Pose2d(30, -38, Math.toRadians(-90)))
+                                .splineToSplineHeading(new Pose2d(39, -45, Math.toRadians(180)), Math.toRadians(180))
                                 //place pixel
                                 .back(3)
                                 .lineToSplineHeading(new Pose2d(58, -37, Math.toRadians(90)))
@@ -320,9 +320,9 @@ public class MeepMeepTesting {
                 //right
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(new Pose2d(-60, -37, Math.toRadians(0)))
-                                .lineToSplineHeading(new Pose2d(-25, -37, Math.toRadians(-90)))
+                                .splineToSplineHeading(new Pose2d(-35, -47, Math.toRadians(0)), Math.toRadians(0))
                                 //place pixel
-                                .back(3)
+                                .back(5)
                                 .lineToSplineHeading(new Pose2d(-60, -37, Math.toRadians(90)))
                                 .forward(50)
                                 .splineToSplineHeading(new Pose2d(-28, 48.5, Math.toRadians(90)), Math.toRadians(0))
@@ -386,7 +386,7 @@ public class MeepMeepTesting {
 //                .addEntity(BBR)
 //                .addEntity(BBC)
 //                .addEntity(BBL1)
-//                .addEntity(BBR1)
+                .addEntity(BBR1)
 //                .addEntity(BBC1)
 //                .addEntity(RTC)
 //                .addEntity(RTL)
@@ -394,9 +394,9 @@ public class MeepMeepTesting {
 //                .addEntity(RBL)
 //                .addEntity(RBC)
 //                .addEntity(RBR)
-                .addEntity(RBL1)
-                .addEntity(RBC1)
-                .addEntity(RBR1)
+//                .addEntity(RBL1)
+//                .addEntity(RBC1)
+//                .addEntity(RBR1)
                 .start();
     }
 }

@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -63,7 +64,7 @@ public class BasicOpMode extends LinearOpMode {
     private DcMotor leftFront, leftBack, rightFront, rightBack, lift, pullupMotor, urchin = null;
     private Servo intakeServo = null, droneLauncher = null, claw = null;
     private CRServo hookServo = null, angleServo = null;
-    private double currentServoPos = 0.75, sensitivity = 1, driveSensitivity = .75, brakingOffset = -0.1, angleServoPos = 0.45, clawPos = 0.43;
+    private double currentServoPos = 0.75, sensitivity = 1, driveSensitivity = .8, brakingOffset = -0.1, angleServoPos = 0.45, clawPos = 0.43;
 
     @Override
     public void runOpMode() {
@@ -112,7 +113,7 @@ public class BasicOpMode extends LinearOpMode {
                 driveSensitivity = 0.5;
             }
             if(sniperModeOff){
-                driveSensitivity = 0.75;
+                driveSensitivity = .8;
             }
 
             // Send calculated power to wheels

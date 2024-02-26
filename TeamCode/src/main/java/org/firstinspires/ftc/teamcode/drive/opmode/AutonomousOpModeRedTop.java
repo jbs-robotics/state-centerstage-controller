@@ -24,6 +24,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import java.util.List;
 
 @Autonomous(name = "zlaskjedflkasdfkjhaslkdfj")
+@Disabled
 public class AutonomousOpModeRedTop extends LinearOpMode {
     private DcMotor lift = null;
     private int liftDelay = 1500;

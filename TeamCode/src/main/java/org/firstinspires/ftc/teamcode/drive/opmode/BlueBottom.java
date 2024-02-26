@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.opmode.ColorDetectorPipeline;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.opencv.core.Point;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -27,7 +28,7 @@ public class BlueBottom extends LinearOpMode {
     private DcMotor leftFront, leftBack, rightFront, rightBack, l_lift, r_lift, urchin;
     private DistanceSensor distanceSensor = null;
 
-    private double wristUp = 0.25, wristDown = 0.4345, brakingOffset = -0.1;
+    private double wristUp = 0.25, wristDown = .4075, brakingOffset = -0.1;
 
     private OpenCvCamera webcam = null;
     private ColorDetectorPipeline pipeline = null;
@@ -106,7 +107,7 @@ public class BlueBottom extends LinearOpMode {
                         .splineToSplineHeading(new Pose2d(-41, 48, Math.toRadians(90)),Math.toRadians(0))
                         .build();
                 TrajectorySequence toBackdropLeft2 = drive.trajectorySequenceBuilder(toBackdropLeft.end())
-                        .lineToSplineHeading(new Pose2d(-41, 54, Math.toRadians(90)),
+                        .lineToSplineHeading(new Pose2d(-41, 55, Math.toRadians(90)),
                                 SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                                 SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                         .build();
@@ -120,7 +121,7 @@ public class BlueBottom extends LinearOpMode {
                 // Move to Corner
                 drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropLeft2.end())
                         .back(3)
-                        .strafeRight(30)
+                        .strafeLeft(30)
                         .build());
                 break;
             case 'c': //center
@@ -141,7 +142,7 @@ public class BlueBottom extends LinearOpMode {
                         .splineToSplineHeading(new Pose2d(-34, 48.5, Math.toRadians(90)), Math.toRadians(0))
                         .build();
                 TrajectorySequence toBackdropCenter2 = drive.trajectorySequenceBuilder(toBackdropCenter.end())
-                        .lineToSplineHeading(new Pose2d(-34, 54, Math.toRadians(90)),
+                        .lineToSplineHeading(new Pose2d(-34, 55, Math.toRadians(90)),
                                 SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                                 SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                         .build();
@@ -153,7 +154,7 @@ public class BlueBottom extends LinearOpMode {
                 // Move to Corner
                 drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropCenter2.end())
                         .back(3)
-                        .strafeRight(25)
+                        .strafeLeft(25)
                         .build());
                 break;
             case 'r': //right
@@ -170,7 +171,7 @@ public class BlueBottom extends LinearOpMode {
                         .splineToSplineHeading(new Pose2d(-28, 48.5, Math.toRadians(90)), Math.toRadians(0))
                         .build();
                 TrajectorySequence toBackdropRight2 = drive.trajectorySequenceBuilder(toBackdropRight.end())
-                        .lineToSplineHeading(new Pose2d(-28, 54, Math.toRadians(90)),
+                        .lineToSplineHeading(new Pose2d(-28, 55, Math.toRadians(90)),
                                 SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                                 SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
 
@@ -183,7 +184,7 @@ public class BlueBottom extends LinearOpMode {
                 // Move to Corner
                 drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropRight2.end())
                         .back(3)
-                        .strafeRight(15)
+                        .strafeLeft(15)
                         .build());
                 break;
             default:

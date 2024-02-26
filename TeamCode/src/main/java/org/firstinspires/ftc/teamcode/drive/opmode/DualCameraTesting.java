@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.drive.opmode;
 import android.content.res.AssetFileDescriptor;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -20,6 +21,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
 @Autonomous(name = "Testing 2 Camera Auto")
+@Disabled
 public class DualCameraTesting extends LinearOpMode {
     private OpenCvCamera webcam1 = null, webcam2 = null;
     private DualCameraPipeline pipeline = null;

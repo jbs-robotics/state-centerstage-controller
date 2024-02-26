@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.drive.opmode;
+package org.firstinspires.ftc.teamcode.drive.opmode.Autonomous;
 
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ACCEL;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ANG_VEL;
@@ -18,6 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.opmode.ColorDetectorPipeline;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.opencv.core.Point;
@@ -36,7 +37,7 @@ public class RedTop extends LinearOpMode {
     private OpenCvCamera webcam = null;
     private ColorDetectorPipeline pipeline = null;
     private Servo rightWrist, leftChute, rightChute;
-    private double wristUp = 0.2655, wristDown = 0.4345,  brakingOffset = -0.1;
+    private double wristUp = 0.25, wristDown = .4075,  brakingOffset = -0.1;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -109,9 +110,7 @@ public class RedTop extends LinearOpMode {
                 placeOnSpike();
                 TrajectorySequence toBackdropLeft = drive.trajectorySequenceBuilder(toSpikeLeft.end())
                         .back(5)
-                        .lineToSplineHeading(new Pose2d(25, 48, Math.toRadians(90)),
-                                SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
-                                SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
+                        .lineToSplineHeading(new Pose2d(25, 48, Math.toRadians(90)))
                         .build();
                 TrajectorySequence toBackdropLeft2 = drive.trajectorySequenceBuilder(toBackdropLeft.end())
                         .lineToSplineHeading(new Pose2d(25, 50, Math.toRadians(90)),
@@ -140,9 +139,7 @@ public class RedTop extends LinearOpMode {
                 placeOnSpike();
                 TrajectorySequence toBackdropCenter = drive.trajectorySequenceBuilder(toSpikeCenter.end())
                         .back(5)
-                        .lineToSplineHeading(new Pose2d(35, 48, Math.toRadians(90)),
-                                SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
-                                SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
+                        .lineToSplineHeading(new Pose2d(35, 48, Math.toRadians(90)))
                         .build();
                 TrajectorySequence toBackdropCenter2 = drive.trajectorySequenceBuilder(toBackdropCenter.end())
                         .lineToSplineHeading(new Pose2d(35, 50, Math.toRadians(90)),
@@ -172,12 +169,10 @@ public class RedTop extends LinearOpMode {
 
                 TrajectorySequence toBackdropRight = drive.trajectorySequenceBuilder(toSpikeRight.end())
                         .back(5)
-                        .lineToSplineHeading(new Pose2d(39, 48, Math.toRadians(90)),
-                                SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
-                                SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
+                        .lineToSplineHeading(new Pose2d(40, 48, Math.toRadians(90)))
                         .build();
                 TrajectorySequence toBackdropRight2 = drive.trajectorySequenceBuilder(toBackdropRight.end())
-                        .lineToSplineHeading(new Pose2d(39, 50, Math.toRadians(90)),
+                        .lineToSplineHeading(new Pose2d(40, 50, Math.toRadians(90)),
                                 SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
                                 SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                         .build();

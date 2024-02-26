@@ -63,11 +63,10 @@ public class DriveBaseOpMode extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor leftFront, leftBack, rightFront, rightBack, leftLift, rightLift, intake = null, hang;
     private Servo rightWrist, leftChute, rightChute, planeLauncher;
-    private boolean leftOpen = false, rightOpen = false;
     private int pullupUp = 12500, pullupDown = 0;
 
     private double currentServoPos = 0.75, sensitivity = 0.87, driveSensitivity = 1, brakingOffset = -0.1 , wristOffset = -0.030, wristPos = .5;
-    private double wristSensitivity = .001;
+    private double wristSensitivity = .00075;
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
@@ -189,7 +188,7 @@ public class DriveBaseOpMode extends LinearOpMode {
                 hang.setPower(1);
             }
 
-            if(planeUp) planeLauncher.setPosition(.25);
+            if(planeUp) planeLauncher.setPosition(.5);
             if(planeDown) planeLauncher.setPosition(0);
 
 
@@ -205,9 +204,11 @@ public class DriveBaseOpMode extends LinearOpMode {
             rightLift.setPower(liftPower);
 
             wristPos += wristPower;
+
             //red cable is left
-            if(wristPos <= 0.2655) wristPos = 0.2655; // up
-            if(wristPos >= 0.42) wristPos = 0.42; // down
+            //TODO: change the wristPos values to the correct values
+            if(wristPos <= 0.25) wristPos = 0.25; // up
+            if(wristPos >= 0.4075) wristPos = 0.4075; // down
             rightWrist.setPosition(wristPos);
 
             if (bootWheelForward == 0 && bootWheelReverse == 0) {

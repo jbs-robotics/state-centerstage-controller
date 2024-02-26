@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.drive.opmode;
+package org.firstinspires.ftc.teamcode.drive.opmode.Autonomous;
 
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ACCEL;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ANG_VEL;
@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.opmode.ColorDetectorPipeline;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
@@ -32,7 +33,7 @@ public class RedBottom extends LinearOpMode {
     private DcMotor leftFront, leftBack, rightFront, rightBack, l_lift, r_lift, urchin;
     private DistanceSensor distanceSensor = null;
 
-    private double wristUp = 0.25, wristDown = 0.4345, brakingOffset = -0.1;
+    private double wristUp = 0.25, wristDown = .4075, brakingOffset = -0.1;
 
     private OpenCvCamera webcam = null;
     private ColorDetectorPipeline pipeline = null;
@@ -106,7 +107,7 @@ public class RedBottom extends LinearOpMode {
                 placeOnSpike();
 
                 TrajectorySequence toBackdropLeft = drive.trajectorySequenceBuilder(toSpikeLeft.end())
-                        .back(3)
+                        .back(2)
                         .lineToSplineHeading(new Pose2d(58, -37, Math.toRadians(91)))
                         .forward(50)
                         .splineToSplineHeading(new Pose2d(26, 48, Math.toRadians(91)), Math.toRadians(180))
@@ -144,10 +145,10 @@ public class RedBottom extends LinearOpMode {
                         .strafeLeft(4)
                         .lineToSplineHeading(new Pose2d(58, -37, Math.toRadians(90)))
                         .forward(50)
-                        .splineToSplineHeading(new Pose2d(36, 48, Math.toRadians(90)), Math.toRadians(180))
+                        .splineToSplineHeading(new Pose2d(38, 48, Math.toRadians(90)), Math.toRadians(180))
                         .build();
                 TrajectorySequence toBackdropCenter2 = drive.trajectorySequenceBuilder(toBackdropCenter.end())
-                        .lineToSplineHeading(new Pose2d(36, 54.5, Math.toRadians(90)),
+                        .lineToSplineHeading(new Pose2d(38, 54.5, Math.toRadians(90)),
                                 SampleMecanumDrive.getVelocityConstraint(10, MAX_ANG_VEL, TRACK_WIDTH),
                                 SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                         .build();
@@ -160,7 +161,7 @@ public class RedBottom extends LinearOpMode {
                 // Move to Corner
                 drive.followTrajectorySequence(drive.trajectorySequenceBuilder(toBackdropCenter2.end())
                         .back(2)
-                        .strafeRight(24)
+                        .strafeLeft(24)
                         .build());
                 break;
             case 'r': //right
