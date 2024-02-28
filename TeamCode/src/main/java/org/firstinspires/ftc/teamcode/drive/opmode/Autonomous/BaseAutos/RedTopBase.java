@@ -62,12 +62,12 @@ public class RedTopBase {
                 .waitSeconds(sleep)
                 // go to the backdrop
                 .back(5)
-                .lineToSplineHeading(new Pose2d(41, 48.5, Math.toRadians(89)))
-                .lineToSplineHeading(new Pose2d(41, 50, Math.toRadians(89)),
+                .lineToSplineHeading(new Pose2d(40, 48.5, Math.toRadians(89)))
+                .lineToSplineHeading(new Pose2d(40, 50, Math.toRadians(89)),
                         SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 //extend lift
-                .UNSTABLE_addTemporalMarkerOffset(-2.61, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(-2.75, ()->{
                     l_lift.setPower(-0.5);
                     r_lift.setPower(-0.5);
                 })
@@ -82,13 +82,13 @@ public class RedTopBase {
                 })
                 .waitSeconds(1)
                 .back(3)
-                .strafeRight(parkingDistances[parkingLocationIndex] * parkingLocationCoefficient)
+                .strafeRight(parkingDistances[(1 + parkingLocationIndex) % 2] * parkingLocationCoefficient)
                 .build()
         );
         trajectories.put("Center", drive.trajectorySequenceBuilder(new Pose2d(60, 10, Math.toRadians(180)))
                 //~7-8 seconds
                 // go to the spike mark
-                .forward(28)
+                .forward(30)
                 .UNSTABLE_addTemporalMarkerOffset(0, () -> {
                     urchin.setPower(0.3);
                 })
@@ -103,7 +103,7 @@ public class RedTopBase {
                         SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 //extend lift
-                .UNSTABLE_addTemporalMarkerOffset(-2.61, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(-2.75, ()->{
                     l_lift.setPower(-0.5);
                     r_lift.setPower(-0.5);
                 })
@@ -142,7 +142,7 @@ public class RedTopBase {
                         SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 //extend lift
-                .UNSTABLE_addTemporalMarkerOffset(-2.61, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(-2.75, ()->{
                     l_lift.setPower(-0.5);
                     r_lift.setPower(-0.5);
                 })

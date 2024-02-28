@@ -14,7 +14,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(group = "Blue Backdrop", name="BD 10s Corner", preselectTeleOp="Robot-Oriented Drive")
+@Autonomous(group = "Blue Backdrop", name="BD 10s Middle", preselectTeleOp="Robot-Oriented Drive")
 public class BlueTop10Middle extends LinearOpMode {
     private OpenCvCamera webcam = null;
     private ColorDetectorPipeline pipeline = null;

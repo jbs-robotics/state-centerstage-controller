@@ -21,7 +21,7 @@ import java.util.Hashtable;
 public class BlueBottomBase {
     public Dictionary<String, TrajectorySequence> trajectories = new Hashtable<>();
     private int sleep = 0;
-    private int parkingDistances[] = {15, 32}; //{location for corner}
+    private int parkingDistances[] = {15, 25}; //{location for corner}
     private DcMotor leftFront, leftBack, rightFront, rightBack, l_lift, r_lift, urchin;
     private Servo rightWrist, leftChute, rightChute;
     private double brakingOffset = -0.1, wristUp = .25, wristDown = .4075;
@@ -50,9 +50,8 @@ public class BlueBottomBase {
         int parkingLocationIndex = (parkingLocation.equals("middle") || parkingLocation.equals("Middle")) ? 0 : 1;
         trajectories.put("Right", drive.trajectorySequenceBuilder(new Pose2d(-60, -37, Math.toRadians(0)))
                 // ~10-11 seconds
-                .waitSeconds(sleep)
                 // go to the spike mark
-                .splineToSplineHeading(new Pose2d(-35, -47, Math.toRadians(0)), Math.toRadians(0))
+                .splineToSplineHeading(new Pose2d(-37, -46, Math.toRadians(0)), Math.toRadians(0))
                 .UNSTABLE_addTemporalMarkerOffset(0, () -> {
                     urchin.setPower(0.3);
                 })
@@ -60,16 +59,17 @@ public class BlueBottomBase {
                 .UNSTABLE_addTemporalMarkerOffset(0.6, () -> {
                     urchin.setPower(0);
                 })
+                .waitSeconds(sleep)
                 // go to the backdrop
                 .back(5)
-                .lineToSplineHeading(new Pose2d(-59, -37, Math.toRadians(90)))
+                .lineToSplineHeading(new Pose2d(-58, -37, Math.toRadians(90)))
                 .forward(50)
                 .splineToSplineHeading(new Pose2d(-28, 48, Math.toRadians(90)),Math.toRadians(0))
                 .lineToSplineHeading(new Pose2d(-28, 55.5, Math.toRadians(90)),
                       SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                       SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 //extend lift
-                .UNSTABLE_addTemporalMarkerOffset(-2.65, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(-2.8, ()->{
                     l_lift.setPower(-0.5);
                     r_lift.setPower(-0.5);
                 })
@@ -85,13 +85,13 @@ public class BlueBottomBase {
                 })
                 .waitSeconds(1)
                 .back(3)
-                .strafeLeft(parkingDistances[parkingLocationIndex] * parkingLocationCoefficient)
+                .strafeLeft(parkingDistances[(1 + parkingLocationIndex) % 2] * parkingLocationCoefficient)
                 .build()
         );
         trajectories.put("Center", drive.trajectorySequenceBuilder(new Pose2d(-60, -37, Math.toRadians(0)))
                 //~7-8 seconds
                 // go to the spike mark
-                .forward(30)
+                .forward(28)
                 .UNSTABLE_addTemporalMarkerOffset(0, () -> {
                     urchin.setPower(0.3);
                 })
@@ -103,14 +103,14 @@ public class BlueBottomBase {
                 // go to the backdrop
                 .back(4)
                 .strafeRight(3)
-                .lineToLinearHeading(new Pose2d(-59, -37, Math.toRadians(90)))
+                .lineToLinearHeading(new Pose2d(-58, -37, Math.toRadians(90)))
                 .forward(50)
                 .splineToSplineHeading(new Pose2d(-34, 48.5, Math.toRadians(90)), Math.toRadians(0))
                 .lineToSplineHeading(new Pose2d(-34, 55.5, Math.toRadians(90)),
                         SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 //extend lift
-                .UNSTABLE_addTemporalMarkerOffset(-2.65, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(-2.8, ()->{
                     l_lift.setPower(-0.5);
                     r_lift.setPower(-0.5);
                 })
@@ -142,14 +142,14 @@ public class BlueBottomBase {
                 .waitSeconds(sleep)
                 // go to the backdrop
                 .back(5)
-                .lineToSplineHeading(new Pose2d(-59, -37, Math.toRadians(90)))
+                .lineToSplineHeading(new Pose2d(-58, -37, Math.toRadians(90)))
                 .forward(50)
                 .splineToSplineHeading(new Pose2d(-43, 48, Math.toRadians(90)),Math.toRadians(0))
                 .lineToSplineHeading(new Pose2d(-43, 55.5, Math.toRadians(90)),
                         SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 //extend lift
-                .UNSTABLE_addTemporalMarkerOffset(-2.65, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(-2.8, ()->{
                     l_lift.setPower(-0.5);
                     r_lift.setPower(-0.5);
                 })

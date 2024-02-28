@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "org.firstinspires.ftc.teamcode.TeamCode-merged_res-20:/layout_tfe_ic_camera_connection_fragment.xml.flat",
+        "source": "org.firstinspires.ftc.teamcode.TeamCode-main-22:/layout/tfe_ic_camera_connection_fragment.xml"
+    },
+    {
+        "merged": "org.firstinspires.ftc.teamcode.TeamCode-merged_res-20:/xml_teamwebcamcalibrations.xml.flat",
+        "source": "org.firstinspires.ftc.teamcode.TeamCode-main-22:/xml/teamwebcamcalibrations.xml"
+    },
+    {
+        "merged": "org.firstinspires.ftc.teamcode.TeamCode-merged_res-20:/raw_readme.md.flat",
+        "source": "org.firstinspires.ftc.teamcode.TeamCode-main-22:/raw/readme.md"
+    }
+]

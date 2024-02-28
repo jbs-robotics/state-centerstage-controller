@@ -87,7 +87,7 @@ public class RedBottomBase {
                 })
                 .waitSeconds(1)
                 .back(3)
-                .strafeRight(parkingDistances[parkingLocationIndex] * parkingLocationCoefficient)
+                .strafeRight(parkingDistances[(1 + parkingLocationIndex) % 2] * parkingLocationCoefficient)
                 .build()
         );
         trajectories.put("Center", drive.trajectorySequenceBuilder(new Pose2d(60, -37, Math.toRadians(180)))
@@ -106,8 +106,8 @@ public class RedBottomBase {
                 .strafeLeft(4)
                 .lineToSplineHeading(new Pose2d(58, -37, Math.toRadians(90)))
                 .forward(50)
-                .splineToSplineHeading(new Pose2d(38, 48, Math.toRadians(90)), Math.toRadians(170))
-                .lineToSplineHeading(new Pose2d(38, 54, Math.toRadians(90)),
+                .splineToSplineHeading(new Pose2d(35, 48, Math.toRadians(90)), Math.toRadians(170))
+                .lineToSplineHeading(new Pose2d(35, 54, Math.toRadians(90)),
                     SampleMecanumDrive.getVelocityConstraint(10, MAX_ANG_VEL, TRACK_WIDTH),
                     SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                 //extend lift

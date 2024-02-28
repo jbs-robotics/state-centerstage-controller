@@ -29,7 +29,7 @@ public class MeepMeepTesting {
         //Red Top
         RoadRunnerBotEntity RTL = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-                .setConstraints(90, 90, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(52.8, 90, Math.toRadians(180), Math.toRadians(180), 15)
                 .setDimensions(17.75, 17)
                 //left
                 .followTrajectorySequence(drive ->
@@ -47,7 +47,7 @@ public class MeepMeepTesting {
                                 .build()
                 );
         RoadRunnerBotEntity RTC = new DefaultBotBuilder(meepMeep)
-                .setConstraints(90, 90, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(52.8, 90, Math.toRadians(180), Math.toRadians(180), 15)
                 .setDimensions(17.75, 17)
                 //center
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(new Pose2d(60, 10, Math.toRadians(180)))
@@ -64,7 +64,7 @@ public class MeepMeepTesting {
                         .build()
                 );
         RoadRunnerBotEntity RTR = new DefaultBotBuilder(meepMeep)
-                .setConstraints(90, 90, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(52.8, 90, Math.toRadians(180), Math.toRadians(180), 15)
                 .setDimensions(17.75, 17)
                 //right
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(new Pose2d(60, 10, Math.toRadians(180)))
@@ -83,7 +83,7 @@ public class MeepMeepTesting {
 
         //Red Bottom
         RoadRunnerBotEntity RBC = new DefaultBotBuilder(meepMeep)
-                .setConstraints(90, 90, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(52.8, 90, Math.toRadians(180), Math.toRadians(180), 15)
                 .setDimensions(17.75, 17)
 //                .setDimensions(0, 0)
 
@@ -107,7 +107,7 @@ public class MeepMeepTesting {
                 );
 
         RoadRunnerBotEntity RBR = new DefaultBotBuilder(meepMeep)
-                .setConstraints(90, 90, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(52.8, 90, Math.toRadians(180), Math.toRadians(180), 15)
                 .setDimensions(17.75, 17)
 //                .setDimensions(0, 0)
                 //left
@@ -130,7 +130,7 @@ public class MeepMeepTesting {
 
         RoadRunnerBotEntity RBL = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-                .setConstraints(45, 90, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(52.8, 90, Math.toRadians(180), Math.toRadians(180), 15)
                 .setDimensions(17.75, 17)
 //                .setDimensions(0, 0)
 
@@ -152,28 +152,44 @@ public class MeepMeepTesting {
                 );
         //Red Bottom(Through-Truss)
         RoadRunnerBotEntity RBC1 = new DefaultBotBuilder(meepMeep)
-                .setConstraints(90, 90, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(52.8, 90, Math.toRadians(180), Math.toRadians(180), 15)
                 .setDimensions(17.75, 17)
 //                .setDimensions(0, 0)
 
                 //center
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(new Pose2d(60, -37, Math.toRadians(180)))
                         .forward(26)
-                        .strafeRight(3)
                         //place pixel
 
                         .back(5)
                         .lineToSplineHeading(new Pose2d(58, -37, Math.toRadians(90)))
                         .forward(50)
-                        .splineToSplineHeading(new Pose2d(34.5, 48, Math.toRadians(90)), Math.toRadians(180))
+                        .splineToSplineHeading(new Pose2d(34.5, 48, Math.toRadians(90)), Math.toRadians(90))
                         //set pixel on canvas
                         .lineToSplineHeading(new Pose2d(34.5, 50, Math.toRadians(90)))
                         //place pixel on canvas
+
+                        //cycling
+                        .back(3)
+                        .lineToSplineHeading(new Pose2d(57, 20, Math.toRadians(270)))
+                        //move lifts up and reset chutes
+                        .forward(60)
+                        .lineToConstantHeading(new Vector2d(35, -62))
+                        //run intake and pick up pixels from stacks
+                        .strafeRight(10)
+                        .back(3)
+                        .strafeLeft(8)
+                        .lineToSplineHeading(new Pose2d(59, -40, Math.toRadians(90)))
+                        .forward(50)
+                        .splineToSplineHeading(new Pose2d(43, 48.5, Math.toRadians(90)), Math.toRadians(90))
+                        .lineToSplineHeading(new Pose2d(43, 50, Math.toRadians(90)),
+                                SampleMecanumDrive.getVelocityConstraint(10, MAX_ANG_VEL, TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                         .build()
                 );
 
         RoadRunnerBotEntity RBR1 = new DefaultBotBuilder(meepMeep)
-                .setConstraints(90, 90, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(52.8, 90, Math.toRadians(180), Math.toRadians(180), 15)
                 .setDimensions(17.75, 17)
 //                .setDimensions(0, 0)
                 //right
@@ -192,7 +208,7 @@ public class MeepMeepTesting {
 
         RoadRunnerBotEntity RBL1 = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-                .setConstraints(45, 90, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(52.8, 90, Math.toRadians(180), Math.toRadians(180), 15)
                 .setDimensions(17.75, 17)
 //                .setDimensions(0, 0)
 
@@ -214,7 +230,7 @@ public class MeepMeepTesting {
         //Blue Top
         RoadRunnerBotEntity BTR = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-                .setConstraints(90, 90, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(52.8, 90, Math.toRadians(180), Math.toRadians(180), 15)
                 .setDimensions(17.75, 17)
                 //right
                 .followTrajectorySequence(drive ->
@@ -228,7 +244,7 @@ public class MeepMeepTesting {
                                 .build()
                 );
         RoadRunnerBotEntity BTC = new DefaultBotBuilder(meepMeep)
-                .setConstraints(90, 90, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(52.8, 90, Math.toRadians(180), Math.toRadians(180), 15)
                 .setDimensions(17.75, 17)
                 //center
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(new Pose2d(-60, 10, Math.toRadians(0)))
@@ -244,7 +260,7 @@ public class MeepMeepTesting {
                         .build()
                 );
         RoadRunnerBotEntity BTL = new DefaultBotBuilder(meepMeep)
-                .setConstraints(90, 90, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(52.8, 90, Math.toRadians(180), Math.toRadians(180), 15)
                 //left
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(new Pose2d(-60, 10, Math.toRadians(0)))
                         .strafeLeft(27)
@@ -261,7 +277,7 @@ public class MeepMeepTesting {
         //Blue Bottom
         RoadRunnerBotEntity BBR = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-                .setConstraints(45, 90, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(52.8, 90, Math.toRadians(180), Math.toRadians(180), 15)
                 .setDimensions(17.75, 17)
                 //right
                 .followTrajectorySequence(drive ->
@@ -277,7 +293,7 @@ public class MeepMeepTesting {
                                 .build()
                 );
         RoadRunnerBotEntity BBC = new DefaultBotBuilder(meepMeep)
-                .setConstraints(90, 90, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(52.8, 90, Math.toRadians(180), Math.toRadians(180), 15)
                 .setDimensions(17.75, 17)
                 //center
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(new Pose2d(-60, -37, Math.toRadians(0)))
@@ -295,7 +311,7 @@ public class MeepMeepTesting {
                         .build()
                 );
         RoadRunnerBotEntity BBL = new DefaultBotBuilder(meepMeep)
-                .setConstraints(90, 90, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(52.8, 90, Math.toRadians(180), Math.toRadians(180), 15)
                 .setDimensions(17.75, 17)
                 //left
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(new Pose2d(-60, -37, Math.toRadians(0)))
@@ -312,10 +328,9 @@ public class MeepMeepTesting {
                         .build()
                 );
         //Blue Bottom(Through-Truss)
-        //TODO: Code this
         RoadRunnerBotEntity BBR1 = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-                .setConstraints(45, 90, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(52.8, 90, Math.toRadians(180), Math.toRadians(180), 15)
                 .setDimensions(17.75, 17)
                 //right
                 .followTrajectorySequence(drive ->
@@ -325,16 +340,29 @@ public class MeepMeepTesting {
                                 .back(5)
                                 .lineToSplineHeading(new Pose2d(-60, -37, Math.toRadians(90)))
                                 .forward(50)
-                                .splineToSplineHeading(new Pose2d(-28, 48.5, Math.toRadians(90)), Math.toRadians(0))
+                                .splineToSplineHeading(new Pose2d(-28, 48.5, Math.toRadians(90)), Math.toRadians(90))
                                 //set pixel on canvas
                                 .lineToSplineHeading(new Pose2d(-28, 50, Math.toRadians(90)),
-                                        SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
+                                        SampleMecanumDrive.getVelocityConstraint(10, MAX_ANG_VEL, TRACK_WIDTH),
                                         SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                                 //place pixel on canvas
+
+                                //cycling
+                                .back(3)
+                                .splineToSplineHeading(new Pose2d(-59, 10, Math.toRadians(270)), Math.toRadians(270))
+                                .splineToSplineHeading(new Pose2d(-59, -40, Math.toRadians(270)), Math.toRadians(270))
+                                .splineToConstantHeading(new Vector2d(-35, -62), Math.toRadians(270))
+
+                                .lineToSplineHeading(new Pose2d(-59, -40, Math.toRadians(90)))
+                                .forward(50)
+                                .splineToSplineHeading(new Pose2d(-35, 48.5, Math.toRadians(90)), Math.toRadians(90))
+                                .lineToSplineHeading(new Pose2d(-35, 50, Math.toRadians(90)),
+                                        SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
+                                        SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                                 .build()
                 );
         RoadRunnerBotEntity BBC1 = new DefaultBotBuilder(meepMeep)
-                .setConstraints(90, 90, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(52.8, 90, Math.toRadians(180), Math.toRadians(180), 15)
                 .setDimensions(17.75, 17)
                 //center
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(new Pose2d(-60, -37, Math.toRadians(0)))
@@ -342,17 +370,32 @@ public class MeepMeepTesting {
                         .strafeLeft(3)
                         //place pixel
                         .back(5)
-                        .lineToLinearHeading(new Pose2d(-60, -37, Math.toRadians(90)))
-                        .forward(50)
-                        .splineToSplineHeading(new Pose2d(-35, 48.5, Math.toRadians(90)), Math.toRadians(0))
+                                .splineToSplineHeading(new Pose2d(-58, -37, Math.toRadians(90)), Math.toRadians(90))
+                                .splineToSplineHeading(new Pose2d(-58, 13, Math.toRadians(90)), Math.toRadians(90))
+                                .splineToSplineHeading(new Pose2d(-32, 48.5, Math.toRadians(90)), Math.toRadians(0))
                         .lineToSplineHeading(new Pose2d(-35, 50, Math.toRadians(90)),
                                 SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
                                 SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                         //place pixel on canvas
+                        .back(3)
+                        //cycling
+                        .lineToSplineHeading(new Pose2d(-59, 20, Math.toRadians(270)))
+                        .forward(60)
+//                        .splineToSplineHeading(new Pose2d(-59, -40, Math.toRadians(270)), Math.toRadians(270))
+                        .lineToConstantHeading(new Vector2d(-35, -62))
+                        //run intake and pick up pixels from stacks
+                        .back(3)
+                        .strafeRight(5)
+                        .lineToSplineHeading(new Pose2d(-59, -40, Math.toRadians(90)))
+                        .forward(50)
+                        .splineToSplineHeading(new Pose2d(-35, 48.5, Math.toRadians(90)), Math.toRadians(90))
+                        .lineToSplineHeading(new Pose2d(-35, 50, Math.toRadians(90)),
+                                SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                         .build()
                 );
         RoadRunnerBotEntity BBL1 = new DefaultBotBuilder(meepMeep)
-                .setConstraints(90, 90, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(52.8, 90, Math.toRadians(180), Math.toRadians(180), 15)
                 .setDimensions(17.75, 17)
                 //left
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(new Pose2d(-60, -37, Math.toRadians(0)))
@@ -361,13 +404,26 @@ public class MeepMeepTesting {
                         .back(5)
                         .lineToSplineHeading(new Pose2d(-60, -37, Math.toRadians(90)))
                         .forward(50)
-                        .splineToSplineHeading(new Pose2d(-41, 48, Math.toRadians(90)),Math.toRadians(0))
+                        .splineToSplineHeading(new Pose2d(-41, 48, Math.toRadians(90)),Math.toRadians(90))
 
                         .lineToSplineHeading(new Pose2d(-41, 50, Math.toRadians(90)),
                                 SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
                                 SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
-
                         //place pixel on canvas
+                        .back(3)
+
+                        .splineToSplineHeading(new Pose2d(-59, 10, Math.toRadians(270)), Math.toRadians(270))
+                        .splineToSplineHeading(new Pose2d(-59, -40, Math.toRadians(270)), Math.toRadians(270))
+                        .splineToConstantHeading(new Vector2d(-35, -62), Math.toRadians(270))
+                        //cycling
+                        .back(3)
+                        .strafeRight(5)
+                        .lineToSplineHeading(new Pose2d(-59, -40, Math.toRadians(90)))
+                        .forward(50)
+                        .splineToSplineHeading(new Pose2d(-43, 48.5, Math.toRadians(90)), Math.toRadians(90))
+                        .lineToSplineHeading(new Pose2d(-43, 50, Math.toRadians(90)),
+                                SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
+                                SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                         .build()
                 );
         Image img = null;
@@ -386,8 +442,8 @@ public class MeepMeepTesting {
 //                .addEntity(BBR)
 //                .addEntity(BBC)
 //                .addEntity(BBL1)
-                .addEntity(BBR1)
-//                .addEntity(BBC1)
+//                .addEntity(BBR1)
+                .addEntity(BBC1)
 //                .addEntity(RTC)
 //                .addEntity(RTL)
 //                .addEntity(RTR)
