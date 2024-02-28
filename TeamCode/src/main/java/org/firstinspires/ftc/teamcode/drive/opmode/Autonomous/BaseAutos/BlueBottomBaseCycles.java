@@ -127,7 +127,7 @@ public class BlueBottomBaseCycles {
                         SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .splineToSplineHeading(new Pose2d(-32, 48.5, Math.toRadians(90)), Math.toRadians(0))
-                .lineToSplineHeading(new Pose2d(-32, 55, Math.toRadians(90)),
+                .lineToSplineHeading(new Pose2d(-32, 52.5, Math.toRadians(90)),
                         SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 //extend lift
@@ -149,12 +149,12 @@ public class BlueBottomBaseCycles {
 
                 // Cycling
                 .back(3)
-                .lineToSplineHeading(new Pose2d(-58, 30, Math.toRadians(271)))
-
+//                .lineToSplineHeading(new Pose2d(-58, 30, Math.toRadians(270)))
+                .splineToSplineHeading(new Pose2d(-56, 30, Math.toRadians(270.5)), Math.toRadians(270))
                 .UNSTABLE_addTemporalMarkerOffset(-2.5, ()->{
                     rightWrist.setPosition(wristDown);
                 })
-                .UNSTABLE_addTemporalMarkerOffset(-1.7, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(-1.6, ()->{
                     l_lift.setPower(0.5);
                     r_lift.setPower(0.5);
                 })
@@ -168,7 +168,7 @@ public class BlueBottomBaseCycles {
                 })
 //                .lineToSplineHeading(new Pose2d(-59, -40, Math.toRadians(270)))
 //                .forward(60)
-                .splineToSplineHeading(new Pose2d(-58, -40, Math.toRadians(270)), Math.toRadians(270))
+                .splineToSplineHeading(new Pose2d(-56, -45, Math.toRadians(270)), Math.toRadians(270))
                 .lineToConstantHeading(new Vector2d(-35, -62))
                 .strafeLeft(8)
                 .UNSTABLE_addTemporalMarkerOffset(0, ()->{
@@ -176,31 +176,32 @@ public class BlueBottomBaseCycles {
                     r_lift.setPower(0.5);
                     urchin.setPower(-.75);
                 })
-                .UNSTABLE_addTemporalMarkerOffset(0.1, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(0.2, ()->{
                     l_lift.setPower(brakingOffset);
                     r_lift.setPower(brakingOffset);
                 })
                 .back(3)
                 .strafeRight(5)
-                .lineToSplineHeading(new Pose2d(-57, -40, Math.toRadians(90)))
+                .lineToSplineHeading(new Pose2d(-58, -40, Math.toRadians(90)))
                 .forward(50)
                 .splineToSplineHeading(new Pose2d(-43, 48.5, Math.toRadians(90)), Math.toRadians(90))
                 .lineToSplineHeading(new Pose2d(-43, 55, Math.toRadians(90)),
                         SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .UNSTABLE_addTemporalMarkerOffset(-2.5, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(-0.5, ()->{
                     l_lift.setPower(-0.5);
                     r_lift.setPower(-0.5);
                 })
-                .UNSTABLE_addTemporalMarkerOffset(-1.5, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(0.5, ()->{
                     l_lift.setPower(brakingOffset);
                     r_lift.setPower(brakingOffset);
                     rightWrist.setPosition(wristUp);
                 })
-                .UNSTABLE_addTemporalMarkerOffset(0, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(0.5, ()->{
                     leftChute.setPosition(0.25);
                     rightChute.setPosition(0.25);
                 })
+                .waitSeconds(1)
                 .back(3)
                 .strafeLeft(27)
                 .build()

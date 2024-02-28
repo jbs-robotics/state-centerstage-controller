@@ -372,17 +372,16 @@ public class MeepMeepTesting {
                         .back(5)
                                 .splineToSplineHeading(new Pose2d(-58, -37, Math.toRadians(90)), Math.toRadians(90))
                                 .splineToSplineHeading(new Pose2d(-58, 13, Math.toRadians(90)), Math.toRadians(90))
-                                .splineToSplineHeading(new Pose2d(-32, 48.5, Math.toRadians(90)), Math.toRadians(0))
+                                .splineToSplineHeading(new Pose2d(-35, 48.5, Math.toRadians(90)), Math.toRadians(0))
                         .lineToSplineHeading(new Pose2d(-35, 50, Math.toRadians(90)),
                                 SampleMecanumDrive.getVelocityConstraint(15, MAX_ANG_VEL, TRACK_WIDTH),
                                 SampleMecanumDrive.getAccelerationConstraint(MAX_ACCEL))
                         //place pixel on canvas
                         .back(3)
                         //cycling
-                        .lineToSplineHeading(new Pose2d(-59, 20, Math.toRadians(270)))
-                        .forward(60)
-//                        .splineToSplineHeading(new Pose2d(-59, -40, Math.toRadians(270)), Math.toRadians(270))
-                        .lineToConstantHeading(new Vector2d(-35, -62))
+                        .splineToSplineHeading(new Pose2d(-59, 20, Math.toRadians(270)), Math.toRadians(270))
+                        .splineToSplineHeading(new Pose2d(-59, -40, Math.toRadians(270)), Math.toRadians(270))
+//                        .lineToConstantHeading(new Vector2d(-35, -62))
                         //run intake and pick up pixels from stacks
                         .back(3)
                         .strafeRight(5)
