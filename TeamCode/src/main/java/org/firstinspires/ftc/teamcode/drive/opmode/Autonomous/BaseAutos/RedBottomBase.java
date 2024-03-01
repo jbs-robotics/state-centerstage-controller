@@ -53,9 +53,9 @@ public class RedBottomBase {
         int parkingLocationIndex = ((parkingLocation.equals("middle") || parkingLocation.equals("Middle")) ? 1 : 0);
         trajectories.put("Right", drive.trajectorySequenceBuilder(new Pose2d(60, -37, Math.toRadians(180)))
                 // ~10-11 seconds
-                .waitSeconds(sleep)
                 // go to the spike mark
                 .splineToSplineHeading(new Pose2d(33, -33, Math.toRadians(90)), Math.toRadians(90))
+                .waitSeconds(sleep)
                 .UNSTABLE_addTemporalMarkerOffset(0, () -> {
                     urchin.setPower(0.3);
                 })
@@ -87,6 +87,9 @@ public class RedBottomBase {
                 })
                 .waitSeconds(1)
                 .back(3)
+                .UNSTABLE_addTemporalMarkerOffset(0, ()->{
+                    rightWrist.setPosition(wristDown);
+                })
                 .strafeRight(parkingDistances[(1 + parkingLocationIndex) % 2] * parkingLocationCoefficient)
                 .build()
         );
@@ -94,13 +97,13 @@ public class RedBottomBase {
                 //~7-8 seconds
                 // go to the spike mark
                 .forward(29)
+                .waitSeconds(sleep)
                 .UNSTABLE_addTemporalMarkerOffset(0, () -> {
                     urchin.setPower(0.3);
                 })
                 .UNSTABLE_addTemporalMarkerOffset(0.6, () -> {
                     urchin.setPower(0);
                 })
-                .waitSeconds(sleep)
                 // go to the backdrop
                 .back(3)
                 .strafeLeft(4)
@@ -127,20 +130,23 @@ public class RedBottomBase {
                 })
                 .waitSeconds(1)
                 .back(3)
+                .UNSTABLE_addTemporalMarkerOffset(0, ()->{
+                    rightWrist.setPosition(wristDown);
+                })
                 .strafeRight(24 * parkingLocationCoefficient)
                 .build()
         );
         trajectories.put("Left", drive.trajectorySequenceBuilder(new Pose2d(60, -37, Math.toRadians(180)))
                 // ~9-10 seconds
                 // go to the spike mark
-                .splineToSplineHeading(new Pose2d(41, -47, Math.toRadians(180)), Math.toRadians(180))
+               .splineToSplineHeading(new Pose2d(41, -47, Math.toRadians(180)), Math.toRadians(180))
+               .waitSeconds(sleep)
                .UNSTABLE_addTemporalMarkerOffset(0, () -> {
                     urchin.setPower(0.3);
                 })
                 .UNSTABLE_addTemporalMarkerOffset(.6, () -> {
                     urchin.setPower(0);
                 })
-                .waitSeconds(sleep)
                 // go to the backdrop
                 .back(4)
                 .lineToSplineHeading(new Pose2d(58, -37, Math.toRadians(-269)))
@@ -165,6 +171,9 @@ public class RedBottomBase {
                 })
                 .waitSeconds(1)
                 .back(3)
+                .UNSTABLE_addTemporalMarkerOffset(0, ()->{
+                    rightWrist.setPosition(wristDown);
+                })
                 .strafeRight(parkingDistances[(1 + parkingLocationIndex) % 2] * parkingLocationCoefficient)
                 .build()
         );

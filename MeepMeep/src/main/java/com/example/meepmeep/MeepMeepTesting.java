@@ -235,11 +235,15 @@ public class MeepMeepTesting {
                 //right
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(new Pose2d(-60, 10, Math.toRadians(0)))
-                                .lineToSplineHeading(new Pose2d(-35, 10, Math.toRadians(-90)))
+                                .strafeLeft(5)
+                                .lineToSplineHeading(new Pose2d(-30, 5, Math.toRadians(-90)))
+                                .waitSeconds(.5)
                                 //place pixel
-                                .lineToSplineHeading(new Pose2d(-28, 45, Math.toRadians(90)))
-                                .turn(Math.toRadians(180))
                                 .back(5)
+                                .lineToSplineHeading(new Pose2d(-29, 48.5, Math.toRadians(90)))
+                                .lineToSplineHeading(new Pose2d(-29, 51, Math.toRadians(90)))
+                                .waitSeconds(1)
+//                                .back(5)
                                 //place other pixel on backdrop
                                 .build()
                 );
@@ -248,29 +252,30 @@ public class MeepMeepTesting {
                 .setDimensions(17.75, 17)
                 //center
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(new Pose2d(-60, 10, Math.toRadians(0)))
-                        .forward(38)
-                        .back(10)
-                        .strafeRight(4)
+                        .forward(30)
+                        .waitSeconds(1)
                         //place pixel
-                        .back(12)
-                        .lineToSplineHeading(new Pose2d(-35.5, 45, Math.toRadians(90)))
-                        .turn(Math.toRadians(180))
                         .back(5)
+                        .lineToSplineHeading(new Pose2d(-34.5, 48.5, Math.toRadians(90)))
+                        .lineToSplineHeading(new Pose2d(-34.5, 51, Math.toRadians(90)))
+                        .waitSeconds(1)
                         //place pixel on canvas
+                        .back(5)
                         .build()
                 );
         RoadRunnerBotEntity BTL = new DefaultBotBuilder(meepMeep)
-                .setConstraints(52.8, 90, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(52.8, 52.8, Math.toRadians(180), Math.toRadians(180), 15)
                 //left
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(new Pose2d(-60, 10, Math.toRadians(0)))
-                        .strafeLeft(27)
-                        .lineToSplineHeading(new Pose2d(-30, 39, Math.toRadians(-90)))
-                        .forward(12)
-                        .back(6)
+//                        .strafeLeft(26)
+                        .lineToSplineHeading(new Pose2d(-32, 24, Math.toRadians(0)))
+                        .waitSeconds(.5)
                         //place pixel
-                        .back(12)
-                        .lineToConstantHeading(new Vector2d(-42, 45))
-//                        .turn(Math.toRadians(180))
+                        .back(5)
+                        .lineToSplineHeading(new Pose2d(-41, 48.5, Math.toRadians(90)))
+                        .lineToSplineHeading(new Pose2d(-41, 51, Math.toRadians(90)))
+                        .waitSeconds(1)
+                        //place pixel on canvas
                         .back(5)
                         .build()
                 );
@@ -434,15 +439,15 @@ public class MeepMeepTesting {
 //        meepMeep.setBackground(MeepMeep.Background.FIELD_POWERPLAY_OFFICIAL)
         meepMeep.setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
-//                .addEntity(BTC)
-//                .addEntity(BTL)
-//                .addEntity(BTR)
+                .addEntity(BTC)
+                .addEntity(BTL)
+                .addEntity(BTR)
 //                .addEntity(BBL)
 //                .addEntity(BBR)
 //                .addEntity(BBC)
 //                .addEntity(BBL1)
 //                .addEntity(BBR1)
-                .addEntity(BBC1)
+//                .addEntity(BBC1)
 //                .addEntity(RTC)
 //                .addEntity(RTL)
 //                .addEntity(RTR)

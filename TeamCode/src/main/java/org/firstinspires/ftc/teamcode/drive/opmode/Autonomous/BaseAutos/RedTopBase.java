@@ -19,7 +19,7 @@ import java.util.Hashtable;
 public class RedTopBase {
     public Dictionary<String, TrajectorySequence> trajectories = new Hashtable<>();
     private int sleep = 0;
-    private int parkingDistances[] = {15, 32}; //{location for corner}
+    private int parkingDistances[] = {20, 32}; //{location for corner}
 //    private enum parkingSpot {MIDDLE, CORNER}
     private DcMotor l_lift, r_lift, urchin;
     private Servo rightWrist, leftChute, rightChute;
@@ -52,6 +52,7 @@ public class RedTopBase {
                 .strafeRight(25)
                 // go to the spike mark
                 .lineToLinearHeading(new Pose2d(new Vector2d(30, 27), Math.toRadians(-90)))
+                .waitSeconds(sleep)
                 .UNSTABLE_addTemporalMarkerOffset(0, () -> {
                     urchin.setPower(0.3);
                 })
@@ -59,7 +60,6 @@ public class RedTopBase {
                 .UNSTABLE_addTemporalMarkerOffset(0.6, () -> {
                     urchin.setPower(0);
                 })
-                .waitSeconds(sleep)
                 // go to the backdrop
                 .back(5)
                 .lineToSplineHeading(new Pose2d(40, 48.5, Math.toRadians(89)))
@@ -82,6 +82,9 @@ public class RedTopBase {
                 })
                 .waitSeconds(1)
                 .back(3)
+                        .UNSTABLE_addTemporalMarkerOffset(0, ()->{
+                            rightWrist.setPosition(wristDown);
+                        })
                 .strafeRight(parkingDistances[(1 + parkingLocationIndex) % 2] * parkingLocationCoefficient)
                 .build()
         );
@@ -89,13 +92,13 @@ public class RedTopBase {
                 //~7-8 seconds
                 // go to the spike mark
                 .forward(30)
+                .waitSeconds(sleep)
                 .UNSTABLE_addTemporalMarkerOffset(0, () -> {
                     urchin.setPower(0.3);
                 })
                 .UNSTABLE_addTemporalMarkerOffset(0.6, () -> {
                     urchin.setPower(0);
                 })
-                .waitSeconds(sleep)
                 // go to the backdrop
                 .back(5)
                 .lineToSplineHeading(new Pose2d(35, 48, Math.toRadians(90)))
@@ -119,6 +122,9 @@ public class RedTopBase {
                 })
                 .waitSeconds(1)
                 .back(3)
+                        .UNSTABLE_addTemporalMarkerOffset(0, ()->{
+                            rightWrist.setPosition(wristDown);
+                        })
                 .strafeRight(25 * parkingLocationCoefficient)
                 .build()
         );
@@ -127,6 +133,7 @@ public class RedTopBase {
                 // go to the spike mark
                 .strafeRight(5)
                 .lineToLinearHeading(new Pose2d(new Vector2d(30, 5), Math.toRadians(-90)))
+                .waitSeconds(sleep)
                 .UNSTABLE_addTemporalMarkerOffset(0, () -> {
                     urchin.setPower(0.3);
                 })
@@ -134,7 +141,6 @@ public class RedTopBase {
                 .UNSTABLE_addTemporalMarkerOffset(.6, () -> {
                     urchin.setPower(0);
                 })
-                .waitSeconds(sleep)
                 // go to the backdrop
                 .back(5)
                 .lineToSplineHeading(new Pose2d(25, 48, Math.toRadians(90)))
@@ -158,6 +164,9 @@ public class RedTopBase {
                 })
                 .waitSeconds(1)
                 .back(3)
+                        .UNSTABLE_addTemporalMarkerOffset(0, ()->{
+                            rightWrist.setPosition(wristDown);
+                        })
                 .strafeRight(parkingDistances[(1 + parkingLocationIndex) % 2] * parkingLocationCoefficient)
                 .build()
         );

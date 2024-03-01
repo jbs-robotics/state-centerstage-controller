@@ -38,8 +38,13 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.SampleRevBlinkinLedDriver;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -61,16 +66,33 @@ public class DriveBaseOpMode extends LinearOpMode {
 
     // Declare OpMode members
     private ElapsedTime runtime = new ElapsedTime();
+    private RevBlinkinLedDriver blinkinLedDriver;
+    private RevBlinkinLedDriver.BlinkinPattern purple, green, yellow, white, blank, patterns[] = {null, null};
+    private ColorSensor leftColor, rightColor;
     private DcMotor leftFront, leftBack, rightFront, rightBack, leftLift, rightLift, intake = null, hang;
     private Servo rightWrist, leftChute, rightChute, planeLauncher;
     private int pullupUp = 12500, pullupDown = 0;
-
     private double currentServoPos = 0.75, sensitivity = 0.87, driveSensitivity = 1, brakingOffset = -0.1 , wristOffset = -0.030, wristPos = .5;
     private double wristSensitivity = .00075;
+
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
+        leftColor = hardwareMap.get(ColorSensor.class, "leftColor");
+        rightColor = hardwareMap.get(ColorSensor.class, "rightColor");
+        blinkinLedDriver = hardwareMap.get(RevBlinkinLedDriver.class, "blinkin");
+        purple = RevBlinkinLedDriver.BlinkinPattern.VIOLET;
+        yellow = RevBlinkinLedDriver.BlinkinPattern.GOLD;
+        green = RevBlinkinLedDriver.BlinkinPattern.GREEN;
+        white = RevBlinkinLedDriver.BlinkinPattern.WHITE;
+        blank = RevBlinkinLedDriver.BlinkinPattern.RED;
+        double leftRed = leftColor.red();
+        double leftBlue = leftColor.blue();
+        double leftGreen = leftColor.green();
+        double rightRed = rightColor.red();
+        double rightBlue = rightColor.blue();
+        double rightGreen = rightColor.green();
 
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
@@ -124,7 +146,7 @@ public class DriveBaseOpMode extends LinearOpMode {
 
         hang.setPower(1);
         hang.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
+        int ledIndex = 4;
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
@@ -160,8 +182,6 @@ public class DriveBaseOpMode extends LinearOpMode {
             double bootWheelReverse = Range.clip(gamepad2.left_trigger, 0, sensitivity);
             double liftPower = Range.clip(liftControl, -.87, .87);
             double wristPower = Range.clip(gamepad2.right_stick_y, -wristSensitivity, wristSensitivity);
-
-
             // Chute control
             if (!leftChuteOpen) {
                 leftChute.setPosition(0);
@@ -204,7 +224,7 @@ public class DriveBaseOpMode extends LinearOpMode {
             rightLift.setPower(liftPower);
 
             wristPos += wristPower;
-
+//            blinkinLedDriver.setPattern(blank);
             //red cable is left
             //TODO: change the wristPos values to the correct values
             if(wristPos <= 0.25) wristPos = 0.25; // up
@@ -220,8 +240,47 @@ public class DriveBaseOpMode extends LinearOpMode {
             else if (bootWheelReverse == 0) {
                 intake.setPower(.75);
             }
-            else
-//            intake.setPower(bootWheelForward - bootWheelReverse);
+            else{
+                intake.setPower(0);
+            }
+
+            if (runtime.time(TimeUnit.MILLISECONDS) % 1000 == 0){
+                //left: 1 second, right: 1 second, blank: 2 seconds(red color)
+                leftRed = leftColor.red();
+                leftBlue = leftColor.blue();
+                leftGreen = leftColor.green();
+                rightRed = rightColor.red();
+                rightBlue = rightColor.blue();
+                rightGreen = rightColor.green();
+
+                double margin = 200;
+                //TODO: normalize output values, then figure out the color
+                if(leftRed > 1000 && leftGreen > 1000 && leftBlue > 1000) patterns[0] = white;
+                else if (leftRed < 100 && leftGreen < 100 && leftBlue < 100) patterns[0] = blank;
+                else if(leftBlue > leftRed && leftBlue > leftGreen) patterns[0] = purple;
+                else if(leftGreen > leftRed && leftGreen > leftBlue) patterns[0] = green;
+                else if(leftBlue < leftGreen && leftBlue < leftRed) patterns[0] = yellow;
+                else patterns[0] = blank;
+
+                if(rightRed > 1000 && rightRed > 1000 && rightRed > 1000)
+                    patterns[1] = white;
+                else if(rightRed < 100 && rightGreen < 100 && rightBlue < 100) patterns[1] = blank;
+                else if(rightBlue > rightRed && rightBlue > rightGreen) patterns[1] = purple;
+                else if(rightGreen > rightRed && rightGreen > rightBlue) patterns[1] = green;
+
+                else if(rightBlue < rightGreen && rightBlue < rightRed) patterns[1] = yellow;
+                else patterns[1] = blank;
+                ledIndex = (ledIndex >= 3)? 0 : ledIndex + 1;
+            }
+            if(ledIndex == 0)blinkinLedDriver.setPattern(patterns[0]);
+            if(ledIndex == 1)blinkinLedDriver.setPattern(patterns[1]);
+            if(ledIndex == 2)blinkinLedDriver.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
+            if(ledIndex == 3)blinkinLedDriver.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
+            if(ledIndex == 4)blinkinLedDriver.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
+
+
+
+
             if (sniperModeOff) sensitivity = 1;
             if (sniperModeOn) sensitivity = 0.5;
             if (driveSnipeOn) driveSensitivity = 0.25;
@@ -231,6 +290,13 @@ public class DriveBaseOpMode extends LinearOpMode {
             telemetry.addData("Current Wrist Pos: ", wristPos);
             telemetry.addData("Drive Sensitivity: ", driveSensitivity);
             telemetry.addData("Intake Power", bootWheelForward);
+            telemetry.addData("Left Red: ", leftRed);
+            telemetry.addData("Left Green: ", leftGreen);
+            telemetry.addData("Left Blue: ", leftBlue);
+            telemetry.addData("Right Red: ", rightRed);
+            telemetry.addData("Right Green: ", rightGreen);
+            telemetry.addData("Right Blue: ", rightBlue);
+
             telemetry.update();
         }
     }
